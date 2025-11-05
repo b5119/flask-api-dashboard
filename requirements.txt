@@ -1,0 +1,65 @@
+# Flask Web Application Requirements
+
+# Flask Core
+Flask>=3.0.0
+Flask-SQLAlchemy>=3.0.5
+Flask-Login>=0.6.2
+Flask-WTF>=1.1.1
+Flask-Migrate>=4.0.4
+
+# Database
+SQLAlchemy>=2.0.20
+
+# Forms & Validation
+WTForms>=3.0.1
+email-validator>=2.0.0
+
+# HTTP Requests
+requests>=2.31.0
+
+# Environment Variables
+python-dotenv>=1.0.0
+
+# Data Processing
+pandas>=2.0.0
+
+# Date/Time
+python-dateutil>=2.8.2
+
+# API Integration (from our previous projects)
+# News & Weather
+# Already covered by requests
+
+# Crypto
+# CoinGecko doesn't need special library
+
+# Notifications (Optional - install if using)
+sendgrid>=6.10.0
+twilio>=8.10.0
+
+# Background Tasks (Optional)
+APScheduler>=3.10.4
+
+# Caching (Optional)
+Flask-Caching>=2.0.2
+
+# Rate Limiting (Optional)
+Flask-Limiter>=3.5.0
+
+# CORS (if building API)
+Flask-CORS>=4.0.0
+
+# Production Server
+gunicorn>=21.2.0
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+pytest-flask>=1.2.0
+
+# Code Quality
+flake8>=6.1.0
+black>=23.7.0
+
+# Security
+cryptography>=41.0.3
