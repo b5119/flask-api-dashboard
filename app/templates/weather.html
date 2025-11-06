@@ -1,0 +1,287 @@
+{% extends "base.html" %}
+
+{% block title %}Weather{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-5">
+                <i class="fas fa-cloud-sun"></i> Weather Station
+            </h1>
+            <p class="lead">Real-time weather information and forecasts</p>
+        </div>
+    </div>
+
+    <!-- City Search -->
+    <div class="row mb-4">
+        <div class="col-md-8 mx-auto">
+            <div class="input-group input-group-lg">
+                <input type="text" class="form-control" id="city-input" placeholder="Enter city name..." value="{{ city }}">
+                <button class="btn btn-primary" type="button" id="search-btn">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Current Weather -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-map-marker-alt"></i> Current Weather
+                    </h5>
+                </div>
+                <div class="card-body" id="current-weather">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Weather Forecast -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-calendar-alt"></i> 5-Day Forecast
+                    </h5>
+                </div>
+                <div class="card-body" id="forecast-container">
+                    <div class="text-center">
+                        <div class="spinner-border text-success" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentCity = '{{ city }}';
+
+// Weather icon mapping
+const weatherIcons = {
+    '01d': 'fa-sun',
+    '01n': 'fa-moon',
+    '02d': 'fa-cloud-sun',
+    '02n': 'fa-cloud-moon',
+    '03d': 'fa-cloud',
+    '03n': 'fa-cloud',
+    '04d': 'fa-cloud',
+    '04n': 'fa-cloud',
+    '09d': 'fa-cloud-showers-heavy',
+    '09n': 'fa-cloud-showers-heavy',
+    '10d': 'fa-cloud-sun-rain',
+    '10n': 'fa-cloud-moon-rain',
+    '11d': 'fa-bolt',
+    '11n': 'fa-bolt',
+    '13d': 'fa-snowflake',
+    '13n': 'fa-snowflake',
+    '50d': 'fa-smog',
+    '50n': 'fa-smog'
+};
+
+// Load weather data
+function loadWeather(city) {
+    loadCurrentWeather(city);
+    loadForecast(city);
+}
+
+// Load current weather
+function loadCurrentWeather(city) {
+    const container = document.getElementById('current-weather');
+    container.innerHTML = '<div class="text-center"><div class="spinner-border"></div></div>';
+
+    fetch(`/weather/api/current/${encodeURIComponent(city)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayCurrentWeather(data.weather);
+            } else {
+                container.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i> ${data.error}
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            container.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle"></i> Error loading weather
+                </div>
+            `;
+        });
+}
+
+// Display current weather
+function displayCurrentWeather(weather) {
+    const icon = weatherIcons[weather.icon] || 'fa-cloud';
+    const html = `
+        <div class="row align-items-center">
+            <div class="col-md-4 text-center">
+                <i class="fas ${icon} fa-5x text-warning"></i>
+                <h1 class="display-1 mt-3">${Math.round(weather.temperature)}°C</h1>
+                <p class="lead text-capitalize">${weather.description}</p>
+            </div>
+            <div class="col-md-4">
+                <h3>${weather.city}, ${weather.country}</h3>
+                <hr>
+                <p class="mb-2">
+                    <i class="fas fa-thermometer-half"></i> 
+                    Feels like: <strong>${Math.round(weather.feels_like)}°C</strong>
+                </p>
+                <p class="mb-2">
+                    <i class="fas fa-temperature-high"></i>
+                    High: <strong>${Math.round(weather.temp_max)}°C</strong> / 
+                    Low: <strong>${Math.round(weather.temp_min)}°C</strong>
+                </p>
+                <p class="mb-2">
+                    <i class="fas fa-tint"></i> 
+                    Humidity: <strong>${weather.humidity}%</strong>
+                </p>
+                <p class="mb-2">
+                    <i class="fas fa-wind"></i> 
+                    Wind: <strong>${weather.wind_speed} m/s</strong>
+                </p>
+            </div>
+            <div class="col-md-4">
+                <p class="mb-2">
+                    <i class="fas fa-compress-arrows-alt"></i>
+                    Pressure: <strong>${weather.pressure} hPa</strong>
+                </p>
+                <p class="mb-2">
+                    <i class="fas fa-cloud"></i>
+                    Cloudiness: <strong>${weather.clouds}%</strong>
+                </p>
+                <p class="mb-2">
+                    <i class="fas fa-eye"></i>
+                    Visibility: <strong>${(weather.visibility/1000).toFixed(1)} km</strong>
+                </p>
+                <p class="mb-2">
+                    <i class="fas fa-sunrise"></i>
+                    Sunrise: <strong>${weather.sunrise}</strong>
+                </p>
+                <p class="mb-2">
+                    <i class="fas fa-sunset"></i>
+                    Sunset: <strong>${weather.sunset}</strong>
+                </p>
+            </div>
+        </div>
+    `;
+    document.getElementById('current-weather').innerHTML = html;
+}
+
+// Load forecast
+function loadForecast(city) {
+    const container = document.getElementById('forecast-container');
+    container.innerHTML = '<div class="text-center"><div class="spinner-border"></div></div>';
+
+    fetch(`/weather/api/forecast/${encodeURIComponent(city)}?days=5`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayForecast(data.forecast);
+            } else {
+                container.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i> ${data.error}
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            container.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle"></i> Error loading forecast
+                </div>
+            `;
+        });
+}
+
+// Display forecast
+function displayForecast(forecast) {
+    const forecasts = forecast.forecasts;
+    const dailyForecasts = {};
+
+    // Group by day
+    forecasts.forEach(item => {
+        const date = item.datetime.split(' ')[0];
+        if (!dailyForecasts[date]) {
+            dailyForecasts[date] = [];
+        }
+        dailyForecasts[date].push(item);
+    });
+
+    let html = '<div class="row">';
+    
+    Object.keys(dailyForecasts).slice(0, 5).forEach(date => {
+        const dayData = dailyForecasts[date];
+        const midday = dayData[Math.floor(dayData.length / 2)];
+        const temps = dayData.map(d => d.temperature);
+        const maxTemp = Math.max(...temps);
+        const minTemp = Math.min(...temps);
+        const icon = weatherIcons[midday.icon] || 'fa-cloud';
+        
+        const dateObj = new Date(date);
+        const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
+        const monthDay = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+        html += `
+            <div class="col-md-2 mb-3">
+                <div class="card text-center h-100 hover-lift">
+                    <div class="card-body">
+                        <h6>${dayName}</h6>
+                        <p class="text-muted small">${monthDay}</p>
+                        <i class="fas ${icon} fa-3x text-warning my-3"></i>
+                        <p class="mb-1"><strong>${Math.round(maxTemp)}°</strong> / ${Math.round(minTemp)}°</p>
+                        <p class="small text-muted text-capitalize">${midday.description}</p>
+                        <p class="small">
+                            <i class="fas fa-tint"></i> ${midday.humidity}%
+                        </p>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    document.getElementById('forecast-container').innerHTML = html;
+}
+
+// Search button click
+document.getElementById('search-btn').addEventListener('click', function() {
+    const city = document.getElementById('city-input').value.trim();
+    if (city) {
+        currentCity = city;
+        loadWeather(city);
+    }
+});
+
+// Enter key in input
+document.getElementById('city-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        document.getElementById('search-btn').click();
+    }
+});
+
+// Load initial weather
+document.addEventListener('DOMContentLoaded', function() {
+    loadWeather(currentCity);
+});
+</script>
+{% endblock %}

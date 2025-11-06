@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+
+{% block title %}News{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-5">
+                <i class="fas fa-newspaper"></i> News Center
+            </h1>
+            <p class="lead">Latest news from multiple sources</p>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <form id="filter-form" class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Category</label>
+                            <select class="form-select" id="category" name="category">
+                                <option value="general" {% if category == 'general' %}selected{% endif %}>General</option>
+                                <option value="business" {% if category == 'business' %}selected{% endif %}>Business</option>
+                                <option value="technology" {% if category == 'technology' %}selected{% endif %}>Technology</option>
+                                <option value="entertainment" {% if category == 'entertainment' %}selected{% endif %}>Entertainment</option>
+                                <option value="health" {% if category == 'health' %}selected{% endif %}>Health</option>
+                                <option value="science" {% if category == 'science' %}selected{% endif %}>Science</option>
+                                <option value="sports" {% if category == 'sports' %}selected{% endif %}>Sports</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Country</label>
+                            <select class="form-select" id="country" name="country">
+                                <option value="us" {% if country == 'us' %}selected{% endif %}>United States</option>
+                                <option value="gb" {% if country == 'gb' %}selected{% endif %}>United Kingdom</option>
+                                <option value="ca" {% if country == 'ca' %}selected{% endif %}>Canada</option>
+                                <option value="au" {% if country == 'au' %}selected{% endif %}>Australia</option>
+                                <option value="de" {% if country == 'de' %}selected{% endif %}>Germany</option>
+                                <option value="fr" {% if country == 'fr' %}selected{% endif %}>France</option>
+                                <option value="jp" {% if country == 'jp' %}selected{% endif %}>Japan</option>
+                                <option value="in" {% if country == 'in' %}selected{% endif %}>India</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">&nbsp;</label>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-filter"></i> Apply Filters
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- News Articles -->
+    <div class="row" id="news-container">
+        <div class="col-12 text-center">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <nav id="pagination-container"></nav>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentPage = 1;
+let currentCategory = '{{ category }}';
+let currentCountry = '{{ country }}';
+
+// Load news articles
+function loadNews(page = 1) {
+    const container = document.getElementById('news-container');
+    container.innerHTML = `
+        <div class="col-12 text-center">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    `;
+
+    fetch(`/news/api/headlines?category=${currentCategory}&country=${currentCountry}&page=${page}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.articles.length > 0) {
+                displayArticles(data.articles);
+                updatePagination(page, data.total_results);
+            } else {
+                container.innerHTML = `
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> No articles found
+                        </div>
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            container.innerHTML = `
+                <div class="col-12">
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i> Error loading news
+                    </div>
+                </div>
+            `;
+        });
+}
+
+// Display articles
+function displayArticles(articles) {
+    const container = document.getElementById('news-container');
+    let html = '';
+
+    articles.forEach(article => {
+        const imageUrl = article.urlToImage || 'https://via.placeholder.com/400x250?text=No+Image';
+        const publishedDate = Utils.timeAgo(article.publishedAt);
+        
+        html += `
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 hover-lift">
+                    <img src="${imageUrl}" class="card-img-top" alt="${article.title}" 
+                         onerror="this.src='https://via.placeholder.com/400x250?text=No+Image'">
+                    <div class="card-body">
+                        <span class="badge bg-primary mb-2">${article.source.name}</span>
+                        <h5 class="card-title">${article.title}</h5>
+                        <p class="card-text text-muted">${article.description || ''}</p>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                <i class="fas fa-clock"></i> ${publishedDate}
+                            </small>
+                            <a href="${article.url}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                Read More <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+}
+
+// Update pagination
+function updatePagination(currentPage, totalResults) {
+    const totalPages = Math.ceil(totalResults / 20);
+    const paginationContainer = document.getElementById('pagination-container');
+    
+    if (totalPages <= 1) {
+        paginationContainer.innerHTML = '';
+        return;
+    }
+
+    let html = '<ul class="pagination justify-content-center">';
+    
+    // Previous button
+    html += `
+        <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+            <a class="page-link" href="#" onclick="loadNews(${currentPage - 1}); return false;">
+                Previous
+            </a>
+        </li>
+    `;
+    
+    // Page numbers
+    for (let i = 1; i <= Math.min(totalPages, 5); i++) {
+        html += `
+            <li class="page-item ${i === currentPage ? 'active' : ''}">
+                <a class="page-link" href="#" onclick="loadNews(${i}); return false;">
+                    ${i}
+                </a>
+            </li>
+        `;
+    }
+    
+    // Next button
+    html += `
+        <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+            <a class="page-link" href="#" onclick="loadNews(${currentPage + 1}); return false;">
+                Next
+            </a>
+        </li>
+    `;
+    
+    html += '</ul>';
+    paginationContainer.innerHTML = html;
+}
+
+// Handle filter form submission
+document.getElementById('filter-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    currentCategory = document.getElementById('category').value;
+    currentCountry = document.getElementById('country').value;
+    currentPage = 1;
+    loadNews(1);
+});
+
+// Load initial news
+document.addEventListener('DOMContentLoaded', function() {
+    loadNews(1);
+});
+</script>
+{% endblock %}
