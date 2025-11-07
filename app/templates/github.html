@@ -1,0 +1,328 @@
+{% extends "base.html" %}
+
+{% block title %}GitHub Explorer{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-5">
+                <i class="fab fa-github"></i> GitHub Explorer
+            </h1>
+            <p class="lead">Explore repositories, search projects, and analyze code</p>
+        </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="row mb-4">
+        <div class="col-md-10 mx-auto">
+            <div class="input-group input-group-lg">
+                <input type="text" class="form-control" id="search-input" placeholder="Search repositories...">
+                <button class="btn btn-dark" type="button" id="search-btn">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Access -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white hover-lift" style="cursor: pointer;" onclick="showTrending()">
+                <div class="card-body text-center">
+                    <i class="fas fa-fire fa-3x mb-2"></i>
+                    <h5>Trending</h5>
+                    <p class="mb-0">Popular repositories</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-success text-white hover-lift" style="cursor: pointer;" onclick="showLanguages()">
+                <div class="card-body text-center">
+                    <i class="fas fa-code fa-3x mb-2"></i>
+                    <h5>By Language</h5>
+                    <p class="mb-0">Filter by programming language</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-info text-white hover-lift" style="cursor: pointer;" onclick="showAnalyze()">
+                <div class="card-body text-center">
+                    <i class="fas fa-chart-bar fa-3x mb-2"></i>
+                    <h5>Analyze Repo</h5>
+                    <p class="mb-0">Deep dive into a repository</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Container -->
+    <div class="row">
+        <div class="col-12">
+            <div id="results-container">
+                <!-- Dynamic content will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Analyze Modal -->
+<div class="modal fade" id="analyzeModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Analyze Repository</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Repository (owner/repo)</label>
+                    <input type="text" class="form-control" id="analyze-input" placeholder="e.g., facebook/react">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="analyzeRepo()">Analyze</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Search repositories
+function searchRepositories() {
+    const query = document.getElementById('search-input').value.trim();
+    if (!query) return;
+
+    const container = document.getElementById('results-container');
+    container.innerHTML = '<div class="text-center"><div class="spinner-border"></div></div>';
+
+    fetch(`/github/api/search/repositories?q=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.results.length > 0) {
+                displayRepositories(data.results);
+            } else {
+                container.innerHTML = `
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> No repositories found
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            container.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle"></i> Error searching repositories
+                </div>
+            `;
+        });
+}
+
+// Display repositories
+function displayRepositories(repos) {
+    let html = '<div class="row">';
+    
+    repos.forEach(repo => {
+        const language = repo.language || 'Unknown';
+        const description = repo.description || 'No description available';
+        
+        html += `
+            <div class="col-md-6 mb-3">
+                <div class="card h-100 hover-lift">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <a href="${repo.html_url}" target="_blank" class="text-decoration-none">
+                                ${repo.full_name}
+                            </a>
+                        </h5>
+                        <p class="card-text text-muted">${description}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="badge bg-primary">${language}</span>
+                            </div>
+                            <div class="text-end">
+                                <small class="text-muted">
+                                    <i class="fas fa-star text-warning"></i> ${(repo.stargazers_count || 0).toLocaleString()}
+                                    <i class="fas fa-code-branch ms-2"></i> ${(repo.forks_count || 0).toLocaleString()}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <button class="btn btn-sm btn-outline-primary" onclick="viewRepoDetails('${repo.owner.login}', '${repo.name}')">
+                            View Details
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    document.getElementById('results-container').innerHTML = html;
+}
+
+// Show trending
+function showTrending() {
+    const container = document.getElementById('results-container');
+    container.innerHTML = '<div class="text-center"><div class="spinner-border"></div></div>';
+
+    fetch('/github/api/trending')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayRepositories(data.repositories);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+// Show languages
+function showLanguages() {
+    const container = document.getElementById('results-container');
+    const languages = ['JavaScript', 'Python', 'Java', 'Go', 'Rust', 'TypeScript', 'C++', 'Ruby'];
+    
+    let html = `
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Popular Languages</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+    `;
+    
+    languages.forEach(lang => {
+        html += `
+            <div class="col-md-3 mb-3">
+                <button class="btn btn-outline-dark w-100" onclick="searchByLanguage('${lang}')">
+                    <i class="fas fa-code"></i> ${lang}
+                </button>
+            </div>
+        `;
+    });
+    
+    html += `
+                </div>
+            </div>
+        </div>
+    `;
+    
+    container.innerHTML = html;
+}
+
+// Search by language
+function searchByLanguage(language) {
+    document.getElementById('search-input').value = `language:${language}`;
+    searchRepositories();
+}
+
+// Show analyze modal
+function showAnalyze() {
+    const modal = new bootstrap.Modal(document.getElementById('analyzeModal'));
+    modal.show();
+}
+
+// Analyze repository
+function analyzeRepo() {
+    const input = document.getElementById('analyze-input').value.trim();
+    if (!input || !input.includes('/')) {
+        Utils.showToast('Please enter repository in format: owner/repo', 'danger');
+        return;
+    }
+
+    const [owner, repo] = input.split('/');
+    viewRepoDetails(owner, repo);
+    bootstrap.Modal.getInstance(document.getElementById('analyzeModal')).hide();
+}
+
+// View repository details
+function viewRepoDetails(owner, repo) {
+    const container = document.getElementById('results-container');
+    container.innerHTML = '<div class="text-center"><div class="spinner-border"></div></div>';
+
+    fetch(`/github/api/repo/${owner}/${repo}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayRepoDetails(data.repository);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+// Display repository details
+function displayRepoDetails(repo) {
+    const html = `
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h4 class="mb-0">
+                    <i class="fab fa-github"></i> ${repo.full_name}
+                </h4>
+            </div>
+            <div class="card-body">
+                <p class="lead">${repo.description || 'No description'}</p>
+                <hr>
+                <div class="row mb-3">
+                    <div class="col-md-3 text-center">
+                        <h3>${(repo.stargazers_count || 0).toLocaleString()}</h3>
+                        <small class="text-muted">Stars</small>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <h3>${(repo.forks_count || 0).toLocaleString()}</h3>
+                        <small class="text-muted">Forks</small>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <h3>${(repo.watchers_count || 0).toLocaleString()}</h3>
+                        <small class="text-muted">Watchers</small>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <h3>${(repo.open_issues_count || 0).toLocaleString()}</h3>
+                        <small class="text-muted">Issues</small>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Language:</strong> ${repo.language || 'Not specified'}</p>
+                        <p><strong>License:</strong> ${repo.license ? repo.license.name : 'None'}</p>
+                        <p><strong>Created:</strong> ${Utils.formatDate(repo.created_at)}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Updated:</strong> ${Utils.formatDate(repo.updated_at)}</p>
+                        <p><strong>Size:</strong> ${(repo.size || 0).toLocaleString()} KB</p>
+                        <p><strong>Default Branch:</strong> ${repo.default_branch}</p>
+                    </div>
+                </div>
+                <hr>
+                <a href="${repo.html_url}" target="_blank" class="btn btn-primary">
+                    <i class="fas fa-external-link-alt"></i> View on GitHub
+                </a>
+                <button class="btn btn-secondary" onclick="showTrending()">
+                    <i class="fas fa-arrow-left"></i> Back to Results
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('results-container').innerHTML = html;
+}
+
+// Search button
+document.getElementById('search-btn').addEventListener('click', searchRepositories);
+
+// Enter key
+document.getElementById('search-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        searchRepositories();
+    }
+});
+
+// Load trending on page load
+document.addEventListener('DOMContentLoaded', function() {
+    showTrending();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,312 @@
+{% extends "base.html" %}
+
+{% block title %}Cryptocurrency{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-5">
+                <i class="fab fa-bitcoin"></i> Cryptocurrency Tracker
+            </h1>
+            <p class="lead">Live crypto prices and portfolio management</p>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row mb-4" id="crypto-stats">
+        <div class="col-12 text-center">
+            <div class="spinner-border text-warning" role="status"></div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-4" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#prices-tab" type="button">
+                <i class="fas fa-chart-line"></i> Prices
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#trending-tab" type="button">
+                <i class="fas fa-fire"></i> Trending
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#top-tab" type="button">
+                <i class="fas fa-trophy"></i> Top 100
+            </button>
+        </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content">
+        <!-- Prices Tab -->
+        <div class="tab-pane fade show active" id="prices-tab">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Live Prices</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive" id="prices-container">
+                                <div class="text-center">
+                                    <div class="spinner-border text-warning"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trending Tab -->
+        <div class="tab-pane fade" id="trending-tab">
+            <div class="row" id="trending-container">
+                <div class="col-12 text-center">
+                    <div class="spinner-border text-warning"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top 100 Tab -->
+        <div class="tab-pane fade" id="top-tab">
+            <div class="row">
+                <div class="col-12">
+                    <div class="table-responsive" id="top-container">
+                        <div class="text-center">
+                            <div class="spinner-border text-warning"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Load crypto stats
+function loadCryptoStats() {
+    const coins = ['bitcoin', 'ethereum', 'cardano', 'ripple', 'solana', 'polkadot'];
+    
+    fetch(`/crypto/api/prices?${coins.map(c => `coins=${c}`).join('&')}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayStats(data.prices);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+// Display quick stats
+function displayStats(prices) {
+    let html = '';
+    
+    Object.keys(prices).slice(0, 6).forEach(coinId => {
+        const coin = prices[coinId];
+        const change = coin.usd_24h_change || 0;
+        const changeClass = change >= 0 ? 'text-success' : 'text-danger';
+        const changeIcon = change >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
+        
+        html += `
+            <div class="col-md-2 mb-3">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <h6 class="text-uppercase">${coinId}</h6>
+                        <h4 class="mb-1">$${coin.usd.toLocaleString()}</h4>
+                        <p class="${changeClass} mb-0">
+                            <i class="fas ${changeIcon}"></i> ${Math.abs(change).toFixed(2)}%
+                        </p>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    document.getElementById('crypto-stats').innerHTML = html;
+}
+
+// Load prices
+function loadPrices() {
+    const coins = ['bitcoin', 'ethereum', 'cardano', 'ripple', 'solana', 'polkadot', 'dogecoin', 'avalanche-2'];
+    
+    fetch(`/crypto/api/prices?${coins.map(c => `coins=${c}`).join('&')}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayPrices(data.prices);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+// Display prices table
+function displayPrices(prices) {
+    let html = `
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Cryptocurrency</th>
+                    <th class="text-end">Price</th>
+                    <th class="text-end">24h Change</th>
+                    <th class="text-end">Market Cap</th>
+                    <th class="text-end">24h Volume</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    Object.keys(prices).forEach(coinId => {
+        const coin = prices[coinId];
+        const change = coin.usd_24h_change || 0;
+        const changeClass = change >= 0 ? 'text-success' : 'text-danger';
+        const changeIcon = change >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
+        
+        html += `
+            <tr>
+                <td class="text-capitalize"><strong>${coinId}</strong></td>
+                <td class="text-end">$${coin.usd.toLocaleString()}</td>
+                <td class="text-end ${changeClass}">
+                    <i class="fas ${changeIcon}"></i> ${Math.abs(change).toFixed(2)}%
+                </td>
+                <td class="text-end">$${(coin.usd_market_cap || 0).toLocaleString()}</td>
+                <td class="text-end">$${(coin.usd_24h_vol || 0).toLocaleString()}</td>
+            </tr>
+        `;
+    });
+    
+    html += '</tbody></table>';
+    document.getElementById('prices-container').innerHTML = html;
+}
+
+// Load trending
+function loadTrending() {
+    fetch('/crypto/api/trending')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.trending.coins) {
+                displayTrending(data.trending.coins);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+// Display trending
+function displayTrending(coins) {
+    let html = '';
+    
+    coins.forEach((item, index) => {
+        const coin = item.item;
+        html += `
+            <div class="col-md-4 mb-3">
+                <div class="card h-100 hover-lift">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h5>${coin.name}</h5>
+                                <p class="text-muted mb-2">${coin.symbol}</p>
+                            </div>
+                            <span class="badge bg-warning text-dark">#${index + 1}</span>
+                        </div>
+                        <p class="mb-1">
+                            <small class="text-muted">Market Cap Rank:</small>
+                            <strong> #${coin.market_cap_rank || 'N/A'}</strong>
+                        </p>
+                        <p class="mb-0">
+                            <small class="text-muted">Score:</small>
+                            <strong> ${coin.score || 0}</strong>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    document.getElementById('trending-container').innerHTML = html;
+}
+
+// Load top coins
+function loadTopCoins() {
+    fetch('/crypto/api/top?limit=50')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayTopCoins(data.coins);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+// Display top coins
+function displayTopCoins(coins) {
+    let html = `
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Name</th>
+                    <th class="text-end">Price</th>
+                    <th class="text-end">24h %</th>
+                    <th class="text-end">7d %</th>
+                    <th class="text-end">Market Cap</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    coins.forEach(coin => {
+        const change24h = coin.price_change_percentage_24h || 0;
+        const change7d = coin.price_change_percentage_7d_in_currency || 0;
+        const change24hClass = change24h >= 0 ? 'text-success' : 'text-danger';
+        const change7dClass = change7d >= 0 ? 'text-success' : 'text-danger';
+        
+        html += `
+            <tr>
+                <td><strong>${coin.market_cap_rank}</strong></td>
+                <td>
+                    <strong>${coin.name}</strong>
+                    <br>
+                    <small class="text-muted">${coin.symbol.toUpperCase()}</small>
+                </td>
+                <td class="text-end">$${coin.current_price.toLocaleString()}</td>
+                <td class="text-end ${change24hClass}">${change24h.toFixed(2)}%</td>
+                <td class="text-end ${change7dClass}">${change7d.toFixed(2)}%</td>
+                <td class="text-end">$${coin.market_cap.toLocaleString()}</td>
+            </tr>
+        `;
+    });
+    
+    html += '</tbody></table>';
+    document.getElementById('top-container').innerHTML = html;
+}
+
+// Load data on tab show
+document.querySelectorAll('button[data-bs-toggle="tab"]').forEach(button => {
+    button.addEventListener('shown.bs.tab', function (e) {
+        const target = e.target.getAttribute('data-bs-target');
+        
+        if (target === '#trending-tab' && document.getElementById('trending-container').innerHTML.includes('spinner')) {
+            loadTrending();
+        } else if (target === '#top-tab' && document.getElementById('top-container').innerHTML.includes('spinner')) {
+            loadTopCoins();
+        }
+    });
+});
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    loadCryptoStats();
+    loadPrices();
+    
+    // Auto refresh every 60 seconds
+    setInterval(() => {
+        loadCryptoStats();
+        loadPrices();
+    }, 60000);
+});
+</script>
+{% endblock %}

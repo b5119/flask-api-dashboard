@@ -10,22 +10,36 @@ from datetime import datetime
 
 class WeatherAPI:
     def __init__(self):
-        self.api_key = os.getenv('OPENWEATHER_API_KEY') or current_app.config.get('OPENWEATHER_API_KEY')
+        # Only use environment variable during initialization
+        self.api_key = os.getenv('OPENWEATHER_API_KEY')
         self.base_url = 'https://api.openweathermap.org/data/2.5'
+    
+    def _get_api_key(self):
+        """Get API key from env or Flask config (when in app context)"""
+        if self.api_key:
+            return self.api_key
+        
+        # Try to get from Flask config if in app context
+        try:
+            return current_app.config.get('OPENWEATHER_API_KEY')
+        except RuntimeError:
+            # Not in app context
+            return None
     
     def check_status(self):
         """Check if API is configured"""
-        return bool(self.api_key)
+        return bool(self._get_api_key())
     
     def get_current_weather(self, city, units='metric'):
         """Get current weather for a city"""
-        if not self.api_key:
+        api_key = self._get_api_key()
+        if not api_key:
             return None
         
         endpoint = f"{self.base_url}/weather"
         params = {
             'q': city,
-            'appid': self.api_key,
+            'appid': api_key,
             'units': units
         }
         
@@ -60,13 +74,14 @@ class WeatherAPI:
     
     def get_forecast(self, city, days=5, units='metric'):
         """Get weather forecast"""
-        if not self.api_key:
+        api_key = self._get_api_key()
+        if not api_key:
             return None
         
         endpoint = f"{self.base_url}/forecast"
         params = {
             'q': city,
-            'appid': self.api_key,
+            'appid': api_key,
             'units': units,
             'cnt': days * 8
         }

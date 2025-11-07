@@ -9,21 +9,35 @@ from flask import current_app
 
 class NewsAPI:
     def __init__(self):
-        self.api_key = os.getenv('NEWSAPI_KEY') or current_app.config.get('NEWSAPI_KEY')
+        # Only use environment variable during initialization
+        self.api_key = os.getenv('NEWSAPI_KEY')
         self.base_url = 'https://newsapi.org/v2'
+    
+    def _get_api_key(self):
+        """Get API key from env or Flask config (when in app context)"""
+        if self.api_key:
+            return self.api_key
+        
+        # Try to get from Flask config if in app context
+        try:
+            return current_app.config.get('NEWSAPI_KEY')
+        except RuntimeError:
+            # Not in app context
+            return None
     
     def check_status(self):
         """Check if API is configured and available"""
-        return bool(self.api_key)
+        return bool(self._get_api_key())
     
     def get_top_headlines(self, country='us', category=None, query=None, page=1, page_size=20):
         """Get top headlines"""
-        if not self.api_key:
+        api_key = self._get_api_key()
+        if not api_key:
             return {'articles': [], 'totalResults': 0}
         
         endpoint = f"{self.base_url}/top-headlines"
         params = {
-            'apiKey': self.api_key,
+            'apiKey': api_key,
             'country': country,
             'page': page,
             'pageSize': page_size
@@ -45,12 +59,13 @@ class NewsAPI:
     def search_everything(self, query, from_date=None, to_date=None, language='en', 
                          sort_by='publishedAt', page=1, page_size=20):
         """Search all news articles"""
-        if not self.api_key:
+        api_key = self._get_api_key()
+        if not api_key:
             return {'articles': [], 'totalResults': 0}
         
         endpoint = f"{self.base_url}/everything"
         params = {
-            'apiKey': self.api_key,
+            'apiKey': api_key,
             'q': query,
             'language': language,
             'sortBy': sort_by,
@@ -73,12 +88,13 @@ class NewsAPI:
     
     def get_sources(self, category=None, language='en', country=None):
         """Get available news sources"""
-        if not self.api_key:
+        api_key = self._get_api_key()
+        if not api_key:
             return []
         
         endpoint = f"{self.base_url}/top-headlines/sources"
         params = {
-            'apiKey': self.api_key,
+            'apiKey': api_key,
             'language': language
         }
         
