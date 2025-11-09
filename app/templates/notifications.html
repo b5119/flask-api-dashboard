@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Notifications{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-5">
+                <i class="fas fa-bell"></i> Notification Center
+            </h1>
+            <p class="lead">Send emails and SMS messages</p>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-4" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#email-tab" type="button">
+                <i class="fas fa-envelope"></i> Send Email
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#sms-tab" type="button">
+                <i class="fas fa-sms"></i> Send SMS
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#history-tab" type="button">
+                <i class="fas fa-history"></i> History
+            </button>
+        </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content">
+        <!-- Email Tab -->
+        <div class="tab-pane fade show active" id="email-tab">
+            <div class="row">
+                <div class="col-md-8 mx-auto">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-envelope"></i> Compose Email
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="email-form">
+                                <div class="mb-3">
+                                    <label class="form-label">To Email Address</label>
+                                    <input type="email" class="form-control" id="email-to" required>
+                                    <small class="text-muted">Enter recipient's email address</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Subject</label>
+                                    <input type="text" class="form-control" id="email-subject" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Message</label>
+                                    <textarea class="form-control" id="email-message" rows="6" required></textarea>
+                                </div>
+                                <div class="mb-3 form-check">
+                                    <input type="checkbox" class="form-check-input" id="email-html">
+                                    <label class="form-check-label" for="email-html">
+                                        Send as HTML
+                                    </label>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-lg w-100">
+                                    <i class="fas fa-paper-plane"></i> Send Email
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SMS Tab -->
+        <div class="tab-pane fade" id="sms-tab">
+            <div class

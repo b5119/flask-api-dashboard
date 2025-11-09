@@ -12,6 +12,61 @@ class CryptoAPI:
     def __init__(self):
         self.tracker = CryptoTracker()
     
+    def check_status(self):
+        """Check if crypto API is available"""
+        try:
+            # Simple test to check if we can reach the API
+            response = self.tracker.get_price(['bitcoin'], 'usd')
+            return bool(response)
+        except:
+            return False
+    
+    def get_prices(self, coin_ids, vs_currency='usd'):
+        """Get prices for multiple coins - wrapper method"""
+        try:
+            prices = self.tracker.get_price(coin_ids, vs_currency)
+            return prices
+        except Exception as e:
+            print(f"Crypto API Error: {e}")
+            return {}
+    
+    def get_coin_details(self, coin_id):
+        """Get detailed coin information"""
+        try:
+            data = self.tracker.get_coin_details(coin_id)
+            return data
+        except Exception as e:
+            print(f"Crypto API Error: {e}")
+            return None
+    
+    def get_trending(self):
+        """Get trending coins"""
+        try:
+            data = self.tracker.get_trending()
+            return data
+        except Exception as e:
+            print(f"Crypto API Error: {e}")
+            return {'coins': []}
+    
+    def get_top_coins(self, vs_currency='usd', limit=100, page=1):
+        """Get top coins by market cap"""
+        try:
+            data = self.tracker.get_top_coins(vs_currency, limit, page)
+            return data
+        except Exception as e:
+            print(f"Crypto API Error: {e}")
+            return []
+    
+    def get_market_chart(self, coin_id, vs_currency='usd', days=7):
+        """Get market chart data"""
+        try:
+            data = self.tracker.get_market_chart(coin_id, vs_currency, days)
+            return data
+        except Exception as e:
+            print(f"Crypto API Error: {e}")
+            return None
+    
+    # Flask route methods (kept for compatibility)
     def get_coins(self):
         """List all available cryptocurrencies"""
         data = self.tracker.get_coin_list()
@@ -44,20 +99,6 @@ class CryptoAPI:
         data = self.tracker.get_market_chart(coin_id, vs_currency, days)
         if not data:
             return jsonify({"error": "Unable to fetch chart data"}), 500
-        return jsonify(data)
-    
-    def get_trending(self):
-        """Get trending coins"""
-        data = self.tracker.get_trending()
-        return jsonify(data)
-    
-    def get_top(self):
-        """Get top coins by market cap"""
-        vs_currency = request.args.get('currency', 'usd')
-        limit = int(request.args.get('limit', 100))
-        page = int(request.args.get('page', 1))
-        
-        data = self.tracker.get_top_coins(vs_currency, limit, page)
         return jsonify(data)
     
     def get_portfolio(self):

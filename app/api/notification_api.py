@@ -19,54 +19,36 @@ class NotificationAPI:
         
         self.email_enabled = bool(self.sendgrid_key and self.from_email)
         self.sms_enabled = bool(self.twilio_sid and self.twilio_token and self.twilio_number)
+def send_email(self, to_email, subject, content, content_type='text/plain'):
+    """Send email using SendGrid - returns boolean"""
+    if not self.email_enabled:
+        return False
+    try:
+        from sendgrid import SendGridAPIClient
+        from sendgrid.helpers.mail import Mail
+        message = Mail(
+            from_email=self.from_email,
+            to_emails=to_email,
+            subject=subject,
+            plain_text_content=content if content_type == 'text/plain' else None,
+            html_content=content if content_type == 'text/html' else None
+        )
+        sg = SendGridAPIClient(self.sendgrid_key)
+        response = sg.send(message)
+        return response.status_code in [200, 201, 202]
+    except Exception as e:
+        print(f"Email Error: {e}")
+        return False
 
-    def send_email(self, to_email, subject, content, content_type='text/plain'):
-        """Send email using SendGrid"""
-        if not self.email_enabled:
-            return {"success": False, "error": "Email not configured"}
-        try:
-            from sendgrid import SendGridAPIClient
-            from sendgrid.helpers.mail import Mail
-            message = Mail(
-                from_email=self.from_email,
-                to_emails=to_email,
-                subject=subject,
-                plain_text_content=content if content_type == 'text/plain' else None,
-                html_content=content if content_type == 'text/html' else None
-            )
-            sg = SendGridAPIClient(self.sendgrid_key)
-            response = sg.send(message)
-            if response.status_code in [200, 201, 202]:
-                return {"success": True, "message": f"Email sent to {to_email}"}
-            else:
-                return {"success": False, "error": f"Status {response.status_code}"}
-        except Exception as e:
-            return {"success": False, "error": str(e)}
-
-    def send_sms(self, to_number, message):
-        """Send SMS using Twilio"""
-        if not self.sms_enabled:
-            return {"success": False, "error": "SMS not configured"}
-        try:
-            from twilio.rest import Client
-            client = Client(self.twilio_sid, self.twilio_token)
-            msg = client.messages.create(body=message, from_=self.twilio_number, to=to_number)
-            return {"success": True, "message": f"SMS sent to {to_number}", "sid": msg.sid}
-        except Exception as e:
-            return {"success": False, "error": str(e)}
-
-    def load_template(self, template_name):
-        """Load email template"""
-        path = f"templates/{template_name}.html"
-        try:
-            with open(path, 'r', encoding='utf-8') as f:
-                return f.read()
-        except FileNotFoundError:
-            return None
-
-    def format_template(self, template, **kwargs):
-        """Inject variables into template"""
-        try:
-            return template.format(**kwargs)
-        except Exception as e:
-            return None
+def send_sms(self, to_number, message):
+    """Send SMS using Twilio - returns boolean"""
+    if not self.sms_enabled:
+        return False
+    try:
+        from twilio.rest import Client
+        client = Client(self.twilio_sid, self.twilio_token)
+        msg = client.messages.create(body=message, from_=self.twilio_number, to=to_number)
+        return bool(msg.sid)
+    except Exception as e:
+        print(f"SMS Error: {e}")
+        return False
