@@ -1,47 +1,37 @@
 """
 GitHub Routes
+Handles GitHub-related endpoints
 """
 
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, jsonify, request
 from app.api.github_api import GitHubAPI
 
 github_bp = Blueprint('github', __name__)
 github_api = GitHubAPI()
 
-
-@github_bp.route('/')
-def index():
-    """GitHub explorer home"""
-    return render_template('github.html',
-                         title='GitHub Explorer',
-                         active_page='github')
-
-
-@github_bp.route('/api/repo/<owner>/<repo>')
+@github_bp.route('/repo/<owner>/<repo>')
 def get_repository(owner, repo):
-    """Get repository information"""
+    """Get GitHub repository information"""
     try:
-        repo_data = github_api.get_repository(owner, repo)
+        result = github_api.get_repository(owner, repo)
         
-        if repo_data:
+        if result:
             return jsonify({
                 'success': True,
-                'repository': repo_data
+                'repository': result
             })
         else:
             return jsonify({
                 'success': False,
                 'error': 'Repository not found'
             }), 404
-            
     except Exception as e:
         return jsonify({
             'success': False,
             'error': str(e)
         }), 500
 
-
-@github_bp.route('/api/repo/<owner>/<repo>/contributors')
+@github_bp.route('/repo/<owner>/<repo>/contributors')
 def get_contributors(owner, repo):
     """Get repository contributors"""
     limit = request.args.get('limit', 100, type=int)
@@ -59,8 +49,7 @@ def get_contributors(owner, repo):
             'error': str(e)
         }), 500
 
-
-@github_bp.route('/api/repo/<owner>/<repo>/languages')
+@github_bp.route('/repo/<owner>/<repo>/languages')
 def get_languages(owner, repo):
     """Get repository languages"""
     try:
@@ -76,19 +65,19 @@ def get_languages(owner, repo):
             'error': str(e)
         }), 500
 
-
-@github_bp.route('/api/trending')
-def get_trending():
-    """Get trending repositories"""
-    language = request.args.get('language')
-    since = request.args.get('since', 'daily')
+@github_bp.route('/repo/<owner>/<repo>/commits')
+def get_commits(owner, repo):
+    """Get repository commits"""
+    since = request.args.get('since')
+    until = request.args.get('until')
+    limit = request.args.get('limit', 100, type=int)
     
     try:
-        trending = github_api.get_trending_repos(language, since)
+        commits = github_api.get_commits(owner, repo, since, until, limit)
         
         return jsonify({
             'success': True,
-            'repositories': trending
+            'commits': commits
         })
     except Exception as e:
         return jsonify({
@@ -96,37 +85,116 @@ def get_trending():
             'error': str(e)
         }), 500
 
+@github_bp.route('/repo/<owner>/<repo>/issues')
+def get_issues(owner, repo):
+    """Get repository issues"""
+    state = request.args.get('state', 'all')
+    limit = request.args.get('limit', 100, type=int)
+    
+    try:
+        issues = github_api.get_issues(owner, repo, state, limit)
+        
+        return jsonify({
+            'success': True,
+            'issues': issues
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
 
-@github_bp.route('/api/search/repositories')
+@github_bp.route('/repo/<owner>/<repo>/pulls')
+def get_pull_requests(owner, repo):
+    """Get repository pull requests"""
+    limit = request.args.get('limit', 50, type=int)
+    
+    try:
+        pulls = github_api.get_pull_requests(owner, repo, limit)
+        
+        return jsonify({
+            'success': True,
+            'pull_requests': pulls
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@github_bp.route('/repo/<owner>/<repo>/releases')
+def get_releases(owner, repo):
+    """Get repository releases"""
+    try:
+        releases = github_api.get_releases(owner, repo)
+        
+        return jsonify({
+            'success': True,
+            'releases': releases
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@github_bp.route('/trending')
+def get_trending():
+    """Get trending GitHub repositories"""
+    language = request.args.get('language')
+    since = request.args.get('since', 'daily')
+    limit = request.args.get('limit', 30, type=int)
+    
+    try:
+        repos = github_api.get_trending_repos(language, since, limit)
+        
+        return jsonify({
+            'success': True,
+            'repositories': repos,
+            'count': len(repos)
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@github_bp.route('/search')
 def search_repositories():
-    """Search repositories"""
-    query = request.args.get('q', '')
+    """Search GitHub repositories"""
+    query = request.args.get('q')
+    
+    if not query:
+        return jsonify({
+            'success': False,
+            'error': 'Query parameter "q" is required'
+        }), 400
+    
     sort = request.args.get('sort', 'stars')
     order = request.args.get('order', 'desc')
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 30, type=int)
     
-    if not query:
-        return jsonify({
-            'success': False,
-            'error': 'Search query required'
-        }), 400
-    
     try:
-        results = github_api.search_repositories(
-            query=query,
-            sort=sort,
-            order=order,
-            page=page,
-            per_page=per_page
-        )
+        repos = github_api.search_repositories(query, sort, order, page, per_page)
         
         return jsonify({
             'success': True,
-            'results': results
+            'repositories': repos,
+            'count': len(repos)
         })
     except Exception as e:
         return jsonify({
             'success': False,
             'error': str(e)
         }), 500
+
+@github_bp.route('/status')
+def check_status():
+    """Check if GitHub API is available"""
+    is_available = github_api.check_status()
+    
+    return jsonify({
+        'available': is_available,
+        'message': 'GitHub API is available' if is_available else 'GitHub API unavailable'
+    })

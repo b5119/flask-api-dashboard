@@ -1,26 +1,15 @@
 """
 Cryptocurrency Routes
+Handles crypto-related endpoints (API-only, no authentication)
 """
 
-from flask import Blueprint, render_template, request, jsonify, flash, redirect, url_for
-from flask_login import login_required, current_user
-from app import db
-from app.models import CryptoHolding, PriceAlert
+from flask import Blueprint, jsonify, request
 from app.api.crypto_api import CryptoAPI
 
 crypto_bp = Blueprint('crypto', __name__)
 crypto_api = CryptoAPI()
 
-
-@crypto_bp.route('/')
-def index():
-    """Crypto home page"""
-    return render_template('crypto.html',
-                         title='Cryptocurrency',
-                         active_page='crypto')
-
-
-@crypto_bp.route('/api/prices')
+@crypto_bp.route('/prices')
 def get_prices():
     """Get cryptocurrency prices"""
     coins = request.args.getlist('coins')
@@ -42,8 +31,7 @@ def get_prices():
             'error': str(e)
         }), 500
 
-
-@crypto_bp.route('/api/coin/<coin_id>')
+@crypto_bp.route('/coin/<coin_id>')
 def get_coin_details(coin_id):
     """Get detailed coin information"""
     try:
@@ -66,8 +54,7 @@ def get_coin_details(coin_id):
             'error': str(e)
         }), 500
 
-
-@crypto_bp.route('/api/trending')
+@crypto_bp.route('/trending')
 def get_trending():
     """Get trending cryptocurrencies"""
     try:
@@ -83,8 +70,7 @@ def get_trending():
             'error': str(e)
         }), 500
 
-
-@crypto_bp.route('/api/top')
+@crypto_bp.route('/top')
 def get_top_coins():
     """Get top cryptocurrencies by market cap"""
     vs_currency = request.args.get('vs_currency', 'usd')
@@ -104,8 +90,7 @@ def get_top_coins():
             'error': str(e)
         }), 500
 
-
-@crypto_bp.route('/api/chart/<coin_id>')
+@crypto_bp.route('/chart/<coin_id>')
 def get_chart_data(coin_id):
     """Get historical chart data"""
     vs_currency = request.args.get('vs_currency', 'usd')
@@ -124,85 +109,12 @@ def get_chart_data(coin_id):
             'error': str(e)
         }), 500
 
-
-@crypto_bp.route('/portfolio')
-@login_required
-def portfolio():
-    """User's crypto portfolio"""
-    holdings = current_user.crypto_holdings.all()
+@crypto_bp.route('/status')
+def check_status():
+    """Check if Crypto API is configured and available"""
+    is_configured = crypto_api.check_status()
     
-    return render_template('crypto_portfolio.html',
-                         title='My Portfolio',
-                         active_page='crypto',
-                         holdings=holdings)
-
-
-@crypto_bp.route('/portfolio/add', methods=['POST'])
-@login_required
-def add_holding():
-    """Add crypto holding to portfolio"""
-    data = request.get_json()
-    
-    coin_id = data.get('coin_id')
-    coin_name = data.get('coin_name')
-    amount = data.get('amount')
-    purchase_price = data.get('purchase_price')
-    
-    if not all([coin_id, amount]):
-        return jsonify({
-            'success': False,
-            'error': 'Missing required fields'
-        }), 400
-    
-    try:
-        holding = CryptoHolding(
-            user_id=current_user.id,
-            coin_id=coin_id,
-            coin_name=coin_name,
-            amount=float(amount),
-            purchase_price=float(purchase_price) if purchase_price else None
-        )
-        
-        db.session.add(holding)
-        db.session.commit()
-        
-        return jsonify({
-            'success': True,
-            'message': 'Holding added successfully'
-        })
-        
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
-
-
-@crypto_bp.route('/portfolio/delete/<int:holding_id>', methods=['DELETE'])
-@login_required
-def delete_holding(holding_id):
-    """Delete crypto holding"""
-    holding = CryptoHolding.query.get_or_404(holding_id)
-    
-    if holding.user_id != current_user.id:
-        return jsonify({
-            'success': False,
-            'error': 'Unauthorized'
-        }), 403
-    
-    try:
-        db.session.delete(holding)
-        db.session.commit()
-        
-        return jsonify({
-            'success': True,
-            'message': 'Holding deleted successfully'
-        })
-        
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
+    return jsonify({
+        'configured': is_configured,
+        'message': 'Crypto API is available' if is_configured else 'Crypto API unavailable'
+    })

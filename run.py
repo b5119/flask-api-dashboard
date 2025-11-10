@@ -6,7 +6,8 @@ from app import create_app, db
 from app.models import User, SavedArticle, CryptoHolding
 import os
 
-app = create_app(os.getenv('FLASK_CONFIG') or 'default')
+# ✅ Fixed line — no config argument needed
+app = create_app()
 
 @app.shell_context_processor
 def make_shell_context():

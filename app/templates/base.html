@@ -2,120 +2,22 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>{% block title %}{% endblock %} - API Dashboard</title>
-    
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.js"></script>
-    
-    <!-- Custom CSS -->
+    <title>{% block title %}Dashboard{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    
-    {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url_for('main.index') }}">
-                <i class="fas fa-chart-line"></i> API Dashboard
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link {% if active_page == 'dashboard' %}active{% endif %}" 
-                           href="{{ url_for('main.index') }}">
-                            <i class="fas fa-home"></i> Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if active_page == 'news' %}active{% endif %}" 
-                           href="{{ url_for('news.index') }}">
-                            <i class="fas fa-newspaper"></i> News
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if active_page == 'weather' %}active{% endif %}" 
-                           href="{{ url_for('weather.index') }}">
-                            <i class="fas fa-cloud-sun"></i> Weather
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if active_page == 'crypto' %}active{% endif %}" 
-                           href="{{ url_for('crypto.index') }}">
-                            <i class="fab fa-bitcoin"></i> Crypto
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if active_page == 'github' %}active{% endif %}" 
-                           href="{{ url_for('github.index') }}">
-                            <i class="fab fa-github"></i> GitHub
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if active_page == 'notifications' %}active{% endif %}" 
-                           href="{{ url_for('notifications.index') }}">
-                            <i class="fas fa-bell"></i> Notifications
-                        </a>
-                    </li>
-                </ul>
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.settings') }}">
-                            <i class="fas fa-cog"></i> Settings
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <header>
+        <nav>
+            <a href="{{ url_for('main.index') }}">Home</a>
+            <a href="{{ url_for('news.news_home') }}">News</a>
+            <a href="{{ url_for('weather.weather_home') }}">Weather</a>
+            <a href="{{ url_for('crypto.crypto_home') }}">Crypto</a>
+            <a href="{{ url_for('github.github_home') }}">GitHub</a>
+        </nav>
+    </header>
 
-    <!-- Flash Messages -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <div class="container mt-3">
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
-    {% endwith %}
-
-    <!-- Main Content -->
-    <main class="container-fluid mt-4">
+    <main>
         {% block content %}{% endblock %}
     </main>
-
-    <!-- Footer -->
-    <footer class="bg-light text-center text-lg-start mt-5">
-        <div class="text-center p-3">
-            © {{ year }} API Dashboard. Built with 
-            <i class="fas fa-heart text-danger"></i> using Flask, Bootstrap, and multiple APIs.
-        </div>
-    </footer>
-
-    <!-- Bootstrap JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-    
-    <!-- Custom JS -->
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-    
-    {% block extra_js %}{% endblock %}
 </body>
 </html>
