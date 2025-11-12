@@ -1,159 +1,140 @@
 """
-Notification Routes
+Notifications Routes
+Handles notification-related endpoints (in-memory storage for demo)
 """
 
-from flask import Blueprint, render_template, request, jsonify
-from flask_login import login_required, current_user
-from app import db
-from app.models import NotificationLog
-from app.api.notification_api import NotificationAPI
+from flask import Blueprint, jsonify, request
+from datetime import datetime
 
 notifications_bp = Blueprint('notifications', __name__)
-notification_api = NotificationAPI()
 
+# In-memory storage for demo (use database in production)
+notifications_store = []
+notification_id_counter = 1
 
-@notifications_bp.route('/')
-@login_required
-def index():
-    """Notifications home page"""
-    return render_template('notifications.html',
-                         title='Notifications',
-                         active_page='notifications')
+@notifications_bp.route('/', methods=['GET'])
+def get_notifications():
+    """Get all notifications"""
+    return jsonify({
+        'success': True,
+        'notifications': notifications_store,
+        'count': len(notifications_store)
+    })
 
-
-@notifications_bp.route('/send-email', methods=['POST'])
-@login_required
-def send_email():
-    """Send email notification"""
+@notifications_bp.route('/', methods=['POST'])
+def create_notification():
+    """Create a new notification"""
+    global notification_id_counter
+    
     data = request.get_json()
     
-    to_email = data.get('to_email')
-    subject = data.get('subject')
-    message = data.get('message')
-    is_html = data.get('is_html', False)
-    
-    if not all([to_email, subject, message]):
+    if not data or 'message' not in data:
         return jsonify({
             'success': False,
-            'error': 'Missing required fields'
+            'error': 'Message is required'
         }), 400
     
-    try:
-        success = notification_api.send_email(
-            to_email=to_email,
-            subject=subject,
-            content=message,
-            content_type='text/html' if is_html else 'text/plain'
-        )
-        
-        log = NotificationLog(
-            user_id=current_user.id,
-            notification_type='email',
-            recipient=to_email,
-            subject=subject,
-            message=message,
-            status='sent' if success else 'failed'
-        )
-        db.session.add(log)
-        db.session.commit()
-        
-        if success:
-            return jsonify({
-                'success': True,
-                'message': 'Email sent successfully'
-            })
-        else:
-            return jsonify({
-                'success': False,
-                'error': 'Failed to send email'
-            }), 500
-            
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
-
-
-@notifications_bp.route('/send-sms', methods=['POST'])
-@login_required
-def send_sms():
-    """Send SMS notification"""
-    data = request.get_json()
+    notification = {
+        'id': notification_id_counter,
+        'message': data['message'],
+        'type': data.get('type', 'info'),
+        'read': False,
+        'created_at': datetime.utcnow().isoformat()
+    }
     
-    to_number = data.get('to_number')
-    message = data.get('message')
-    
-    if not all([to_number, message]):
-        return jsonify({
-            'success': False,
-            'error': 'Missing required fields'
-        }), 400
-    
-    try:
-        success = notification_api.send_sms(
-            to_number=to_number,
-            message=message
-        )
-        
-        log = NotificationLog(
-            user_id=current_user.id,
-            notification_type='sms',
-            recipient=to_number,
-            message=message,
-            status='sent' if success else 'failed'
-        )
-        db.session.add(log)
-        db.session.commit()
-        
-        if success:
-            return jsonify({
-                'success': True,
-                'message': 'SMS sent successfully'
-            })
-        else:
-            return jsonify({
-                'success': False,
-                'error': 'Failed to send SMS'
-            }), 500
-            
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
-
-
-@notifications_bp.route('/api/history')
-@login_required
-def api_history():
-    """Get notification history via API"""
-    page = request.args.get('page', 1, type=int)
-    per_page = request.args.get('per_page', 20, type=int)
-    notification_type = request.args.get('type')
-    
-    query = current_user.notification_logs
-    
-    if notification_type:
-        query = query.filter_by(notification_type=notification_type)
-    
-    logs = query.order_by(NotificationLog.sent_at.desc()).paginate(
-        page=page, per_page=per_page, error_out=False
-    )
+    notifications_store.append(notification)
+    notification_id_counter += 1
     
     return jsonify({
         'success': True,
-        'logs': [{
-            'id': log.id,
-            'type': log.notification_type,
-            'recipient': log.recipient,
-            'subject': log.subject,
-            'status': log.status,
-            'sent_at': log.sent_at.isoformat() if log.sent_at else None
-        } for log in logs.items],
-        'total': logs.total,
-        'pages': logs.pages,
-        'current_page': logs.page
+        'notification': notification
+    }), 201
+
+@notifications_bp.route('/<int:notification_id>', methods=['GET'])
+def get_notification(notification_id):
+    """Get a specific notification"""
+    notification = next((n for n in notifications_store if n['id'] == notification_id), None)
+    
+    if not notification:
+        return jsonify({
+            'success': False,
+            'error': 'Notification not found'
+        }), 404
+    
+    return jsonify({
+        'success': True,
+        'notification': notification
+    })
+
+@notifications_bp.route('/<int:notification_id>', methods=['PUT', 'PATCH'])
+def update_notification(notification_id):
+    """Mark notification as read/unread"""
+    notification = next((n for n in notifications_store if n['id'] == notification_id), None)
+    
+    if not notification:
+        return jsonify({
+            'success': False,
+            'error': 'Notification not found'
+        }), 404
+    
+    data = request.get_json()
+    notification['read'] = data.get('read', True)
+    
+    return jsonify({
+        'success': True,
+        'notification': notification
+    })
+
+@notifications_bp.route('/<int:notification_id>', methods=['DELETE'])
+def delete_notification(notification_id):
+    """Delete a notification"""
+    global notifications_store
+    
+    notification = next((n for n in notifications_store if n['id'] == notification_id), None)
+    
+    if not notification:
+        return jsonify({
+            'success': False,
+            'error': 'Notification not found'
+        }), 404
+    
+    notifications_store = [n for n in notifications_store if n['id'] != notification_id]
+    
+    return jsonify({
+        'success': True,
+        'message': 'Notification deleted'
+    })
+
+@notifications_bp.route('/clear', methods=['DELETE'])
+def clear_notifications():
+    """Clear all notifications"""
+    global notifications_store
+    count = len(notifications_store)
+    notifications_store = []
+    
+    return jsonify({
+        'success': True,
+        'message': f'{count} notification(s) cleared'
+    })
+
+@notifications_bp.route('/unread', methods=['GET'])
+def get_unread_notifications():
+    """Get unread notifications"""
+    unread = [n for n in notifications_store if not n['read']]
+    
+    return jsonify({
+        'success': True,
+        'notifications': unread,
+        'count': len(unread)
+    })
+
+@notifications_bp.route('/mark-all-read', methods=['PUT'])
+def mark_all_read():
+    """Mark all notifications as read"""
+    for notification in notifications_store:
+        notification['read'] = True
+    
+    return jsonify({
+        'success': True,
+        'message': 'All notifications marked as read'
     })
