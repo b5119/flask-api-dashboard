@@ -1,17 +1,29 @@
 """
 News Routes
-Handles news-related endpoints
 """
-
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, render_template, jsonify, request
 from app.api.news_api import NewsAPI
 
 news_bp = Blueprint('news', __name__)
 news_api = NewsAPI()
 
-@news_bp.route('/headlines', methods=['GET'])
-def get_headlines():
-    """Get top headlines"""
+@news_bp.route('/')
+def index():
+    """News home page"""
+    return render_template('news.html',
+                         title='News',
+                         active_page='news',
+                         category='technology',
+                         country='us')
+
+@news_bp.route('/home')
+def news_home():
+    """Alias for news home (required by templates)"""
+    return index()
+
+@news_bp.route('/api/headlines')
+def api_headlines():
+    """API endpoint for headlines"""
     country = request.args.get('country', 'us')
     category = request.args.get('category')
     query = request.args.get('q')
@@ -26,15 +38,18 @@ def get_headlines():
         page_size=page_size
     )
     
-    return jsonify(result)
+    return jsonify({
+        'success': True,
+        'articles': result.get('articles', []),
+        'total_results': result.get('totalResults', 0)
+    })
 
-@news_bp.route('/search', methods=['GET'])
+@news_bp.route('/api/search')
 def search_news():
     """Search news articles"""
     query = request.args.get('q')
-    
     if not query:
-        return jsonify({'error': 'Query parameter "q" is required'}), 400
+        return jsonify({'success': False, 'error': 'Query required'}), 400
     
     from_date = request.args.get('from')
     to_date = request.args.get('to')
@@ -53,44 +68,24 @@ def search_news():
         page_size=page_size
     )
     
-    return jsonify(result)
+    return jsonify({
+        'success': True,
+        'articles': result.get('articles', []),
+        'total_results': result.get('totalResults', 0)
+    })
 
-@news_bp.route('/sources', methods=['GET'])
+@news_bp.route('/api/sources')
 def get_sources():
     """Get available news sources"""
     category = request.args.get('category')
     language = request.args.get('language', 'en')
     country = request.args.get('country')
     
-    sources = news_api.get_sources(
-        category=category,
-        language=language,
-        country=country
-    )
-    
-    return jsonify({'sources': sources})
+    sources = news_api.get_sources(category=category, language=language, country=country)
+    return jsonify({'success': True, 'sources': sources})
 
-@news_bp.route('/status', methods=['GET'])
-def check_status():
-    """Check if News API is configured"""
-    is_configured = news_api.check_status()
-    
-    return jsonify({
-        'configured': is_configured,
-        'message': 'News API is configured' if is_configured else 'News API key not found'
-    })
-
-@news_bp.route('/categories', methods=['GET'])
+@news_bp.route('/api/categories')
 def get_categories():
     """Get available news categories"""
-    categories = [
-        'business',
-        'entertainment',
-        'general',
-        'health',
-        'science',
-        'sports',
-        'technology'
-    ]
-    
-    return jsonify({'categories': categories})
+    categories = ['business', 'entertainment', 'general', 'health', 'science', 'sports', 'technology']
+    return jsonify({'success': True, 'categories': categories})

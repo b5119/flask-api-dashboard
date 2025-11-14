@@ -1,53 +1,44 @@
 """
 Weather Routes
-Handles weather-related endpoints
 """
-
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, render_template, jsonify, request
 from app.api.weather_api import WeatherAPI
 
 weather_bp = Blueprint('weather', __name__)
 weather_api = WeatherAPI()
 
-@weather_bp.route('/current', methods=['GET'])
-def get_current_weather():
-    """Get current weather for a location"""
-    city = request.args.get('city')
+@weather_bp.route('/')
+def index():
+    """Weather home page"""
+    return render_template('weather.html',
+                         title='Weather',
+                         active_page='weather',
+                         city='London')
+
+@weather_bp.route('/home')
+def weather_home():
+    """Alias for weather home (required by templates)"""
+    return index()
+
+@weather_bp.route('/api/current/<city>')
+def api_current(city):
+    """API endpoint for current weather"""
     units = request.args.get('units', 'metric')
-    
-    if not city:
-        return jsonify({'error': 'City parameter is required'}), 400
-    
     result = weather_api.get_current_weather(city, units=units)
     
     if result:
-        return jsonify(result)
+        return jsonify({'success': True, 'weather': result})
     else:
-        return jsonify({'error': 'Failed to fetch weather data'}), 400
+        return jsonify({'success': False, 'error': 'Failed to fetch weather data'}), 400
 
-@weather_bp.route('/forecast', methods=['GET'])
-def get_forecast():
-    """Get weather forecast for a location"""
-    city = request.args.get('city')
+@weather_bp.route('/api/forecast/<city>')
+def api_forecast(city):
+    """API endpoint for weather forecast"""
     days = int(request.args.get('days', 5))
     units = request.args.get('units', 'metric')
-    
-    if not city:
-        return jsonify({'error': 'City parameter is required'}), 400
-    
     result = weather_api.get_forecast(city, days=days, units=units)
     
     if result:
-        return jsonify(result)
+        return jsonify({'success': True, 'forecast': result})
     else:
-        return jsonify({'error': 'Failed to fetch forecast data'}), 400
-
-@weather_bp.route('/status', methods=['GET'])
-def check_status():
-    """Check if Weather API is configured"""
-    is_configured = weather_api.check_status()
-    
-    return jsonify({
-        'configured': is_configured,
-        'message': 'Weather API is configured' if is_configured else 'Weather API key not found'
-    })
+        return jsonify({'success': False, 'error': 'Failed to fetch forecast data'}), 400
