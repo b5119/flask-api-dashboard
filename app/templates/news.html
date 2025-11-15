@@ -19,20 +19,39 @@
         <div class="col-12">
             <div class="glass-card p-4">
                 <!-- Tabs for Global/Local -->
-                <ul class="nav nav-pills mb-4 justify-content-center" role="tablist">
+                <ul class="nav nav-pills mb-4 justify-content-center" role="tablist" style="background: linear-gradient(135deg, #667eea, #764ba2); padding: 8px; border-radius: 50px;">
                     <li class="nav-item">
-                        <button class="nav-link active px-4 py-2" id="global-tab" data-bs-toggle="pill" 
-                                data-bs-target="#global-news" type="button">
-                            <i class="fas fa-globe"></i> Global Trending
+                        <button class="nav-link active px-4 py-3 fw-bold" id="global-tab" data-bs-toggle="pill" 
+                                data-bs-target="#global-news" type="button"
+                                style="border-radius: 50px; transition: all 0.3s;">
+                            <i class="fas fa-globe me-2"></i> Global Trending
                         </button>
                     </li>
-                    <li class="nav-item">
-                        <button class="nav-link px-4 py-2" id="local-tab" data-bs-toggle="pill" 
-                                data-bs-target="#local-news" type="button">
-                            <i class="fas fa-map-marker-alt"></i> Local News
+                    <li class="nav-item ms-2">
+                        <button class="nav-link px-4 py-3 fw-bold" id="local-tab" data-bs-toggle="pill" 
+                                data-bs-target="#local-news" type="button"
+                                style="border-radius: 50px; transition: all 0.3s;">
+                            <i class="fas fa-map-marker-alt me-2"></i> Local News
                         </button>
                     </li>
                 </ul>
+                
+                <style>
+                    .nav-pills .nav-link {
+                        background: transparent;
+                        color: white !important;
+                        border: 2px solid transparent;
+                    }
+                    .nav-pills .nav-link:hover {
+                        background: rgba(255, 255, 255, 0.15);
+                        transform: translateY(-2px);
+                    }
+                    .nav-pills .nav-link.active {
+                        background: white !important;
+                        color: #667eea !important;
+                        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+                    }
+                </style>
 
                 <div class="tab-content">
                     <!-- Global News Tab -->
