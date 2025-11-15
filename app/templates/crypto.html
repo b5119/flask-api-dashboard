@@ -46,29 +46,54 @@
         </div>
     </div>
 
-    <!-- Tabs -->
-    <ul class="nav nav-pills mb-4 justify-content-center glass-card p-3" role="tablist">
-        <li class="nav-item">
-            <button class="nav-link active px-4 py-2" data-bs-toggle="tab" data-bs-target="#prices-tab">
-                <i class="fas fa-chart-line"></i> Live Prices
-            </button>
-        </li>
-        <li class="nav-item">
-            <button class="nav-link px-4 py-2" data-bs-toggle="tab" data-bs-target="#portfolio-tab">
-                <i class="fas fa-wallet"></i> My Portfolio
-            </button>
-        </li>
-        <li class="nav-item">
-            <button class="nav-link px-4 py-2" data-bs-toggle="tab" data-bs-target="#trending-tab">
-                <i class="fas fa-fire"></i> Trending
-            </button>
-        </li>
-        <li class="nav-item">
-            <button class="nav-link px-4 py-2" data-bs-toggle="tab" data-bs-target="#alerts-tab">
-                <i class="fas fa-bell"></i> Alerts
-            </button>
-        </li>
-    </ul>
+    <!-- Tabs with Dark Purple Background -->
+    <div class="mb-4 d-flex justify-content-center">
+        <div style="background: linear-gradient(135deg, #667eea, #764ba2); padding: 8px; border-radius: 50px; display: inline-block; box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);">
+            <ul class="nav nav-pills mb-0" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active px-4 py-3 fw-bold" data-bs-toggle="tab" data-bs-target="#prices-tab"
+                            style="border-radius: 50px; transition: all 0.3s;">
+                        <i class="fas fa-chart-line me-2"></i> Live Prices
+                    </button>
+                </li>
+                <li class="nav-item ms-2">
+                    <button class="nav-link px-4 py-3 fw-bold" data-bs-toggle="tab" data-bs-target="#portfolio-tab"
+                            style="border-radius: 50px; transition: all 0.3s;">
+                        <i class="fas fa-wallet me-2"></i> My Portfolio
+                    </button>
+                </li>
+                <li class="nav-item ms-2">
+                    <button class="nav-link px-4 py-3 fw-bold" data-bs-toggle="tab" data-bs-target="#trending-tab"
+                            style="border-radius: 50px; transition: all 0.3s;">
+                        <i class="fas fa-fire me-2"></i> Trending
+                    </button>
+                </li>
+                <li class="nav-item ms-2">
+                    <button class="nav-link px-4 py-3 fw-bold" data-bs-toggle="tab" data-bs-target="#alerts-tab"
+                            style="border-radius: 50px; transition: all 0.3s;">
+                        <i class="fas fa-bell me-2"></i> Alerts
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+    
+    <style>
+        .nav-pills .nav-link {
+            background: transparent;
+            color: white !important;
+            border: 2px solid transparent;
+        }
+        .nav-pills .nav-link:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+        .nav-pills .nav-link.active {
+            background: white !important;
+            color: #667eea !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+    </style>
 
     <!-- Tab Content -->
     <div class="tab-content">
@@ -88,6 +113,7 @@
                     <div class="table-responsive" id="prices-container">
                         <div class="text-center py-5">
                             <div class="spinner-border text-primary"></div>
+                            <p class="mt-3 text-muted">Loading cryptocurrency prices...</p>
                         </div>
                     </div>
                 </div>
@@ -154,6 +180,7 @@
                     <div class="row" id="trending-container">
                         <div class="col-12 text-center py-5">
                             <div class="spinner-border text-warning"></div>
+                            <p class="mt-3 text-muted">Loading trending coins...</p>
                         </div>
                     </div>
                 </div>
@@ -202,7 +229,7 @@
                         <div class="card-body" id="alerts-container">
                             <div class="alert alert-info">
                                 <i class="fas fa-info-circle me-2"></i>
-                                Create your first price alert to get notified
+                                Create your first price alert to get notified when prices hit your targets
                             </div>
                         </div>
                     </div>
@@ -379,7 +406,6 @@ function displayPortfolio() {
         return;
     }
     
-    // Get current prices for portfolio coins
     const coinIds = portfolio.map(h => h.coinId).join(',');
     
     fetch(`/crypto/api/prices?coins=${coinIds}`)
@@ -421,7 +447,6 @@ function displayPortfolio() {
             
             html += '</tbody></table></div>';
             container.html(html);
-            
             updatePortfolioStats();
         });
 }
@@ -569,7 +594,7 @@ function displayAlerts() {
                     <div>
                         <h6 class="mb-1 text-capitalize">${alert.coinId}</h6>
                         <small class="text-muted">
-                            Alert when price goes <strong>${alert.condition}</strong> <strong>$${alert.targetPrice}</strong>
+                            Alert when price goes <strong>${alert.condition}</strong> <strong>$${alert.targetPrice.toLocaleString()}</strong>
                         </small>
                     </div>
                     <button class="btn btn-sm btn-danger" onclick="removeAlert(${alert.id})">
