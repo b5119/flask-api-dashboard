@@ -57,8 +57,8 @@ A beautiful, modern web application built with Flask that aggregates data from m
 
 ### 1️⃣ Clone & Setup
 ```bash
-git clone https://github.com/yourusername/api-hub.git
-cd api-hub
+git clone https://github.com/b5119/flask-api-dashboard.git
+cd flask-api-dashboard
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
@@ -522,7 +522,7 @@ Contributions are welcome! Here's how:
 ## 👤 Author
 
 **Frank Bwalya**
-- GitHub: [@yourusername](https://github.com/b5119)
+- GitHub: [b5119](https://github.com/b5119)
 - Email: bwalyafrank61@gmail.com
 
 
