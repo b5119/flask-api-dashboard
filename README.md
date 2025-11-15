@@ -570,16 +570,24 @@ It helps others discover the project and motivates continued development.
 ## 📸 Screenshots
 
 ### Dashboard Home
+![Dashboard](app/static/img/dashboard.png)
 Beautiful overview with real-time stats from all APIs
 
 ### News Center
+![News Center](app/static/img/news.png)
 Global and local news with smart filtering
 
-### Weather Station  
+### Weather Station
+![Weather 1](app/static/img/weather1.png)
+![Weather 2](app/static/img/weather2.png)
+![Weather 3](app/static/img/weather3.png)
 5-day forecast with GPS auto-detection
 
 ### Crypto Portfolio
+![Crypto Portfolio 1](app/static/img/crypto1.png)
+![Crypto Portfolio 2](app/static/img/crypto2.png)
 Track your investments with profit/loss calculations
+
 
 ---
 
