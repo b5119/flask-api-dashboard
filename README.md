@@ -89,9 +89,9 @@ python run.py
 **Visit:** http://localhost:5000 🎉
 
 ---
----
-## 📁 Project Structure
 
+## 📁 Project Structure
+---
 flask-api-dashboard/
 ├── app/
 │   ├── __init__.py                      # Application factory + extensions initialization
