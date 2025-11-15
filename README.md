@@ -519,35 +519,12 @@ Contributions are welcome! Here's how:
 - Keep commits atomic and descriptive
 
 ---
-
-## 📝 License
-
-This project is licensed under the **MIT License**.
-
-```
-MIT License
-
-Copyright (c) 2025 Your Name
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-```
-
----
-
 ## 👤 Author
 
-**Your Name**
-- GitHub: [@yourusername](https://github.com/yourusername)
-- Email: your.email@example.com
-- Website: https://yourwebsite.com
+**Frank Bwalya**
+- GitHub: [@yourusername](https://github.com/b5119)
+- Email: bwalyafrank61@gmail.com
+
 
 ---
 
@@ -579,8 +556,7 @@ Need help? Here's how to get it:
 1. **Check Documentation**: Read SETUP_GUIDE.md
 2. **Search Issues**: See if someone had the same problem
 3. **Open Issue**: Describe your problem with error messages
-4. **Email**: your.email@example.com
-
+4. **Email**: bwalyafrank61@gmail.com
 ---
 
 ## ⭐ Star This Project
