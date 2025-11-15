@@ -136,7 +136,7 @@ flask-api-dashboard/
 ├── SETUP_GUIDE.md                        # How to install & run the project
 ├── IMPROVEMENTS.md                       # Future upgrade notes
 └── README.md                             # Project documentation
----
+
 
 ## 🛠️ Technology Stack
 
