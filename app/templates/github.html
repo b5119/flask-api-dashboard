@@ -4,85 +4,214 @@
 
 {% block content %}
 <div class="container">
-    <div class="row mb-4">
+    <!-- Header -->
+    <div class="row mb-4 text-white text-center animate-in">
         <div class="col-12">
-            <h1 class="display-5">
+            <h1 class="display-4 fw-bold">
                 <i class="fab fa-github"></i> GitHub Explorer
             </h1>
-            <p class="lead">Explore repositories, search projects, and analyze code</p>
+            <p class="lead">Explore repositories, track favorites & analyze code</p>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="stat-card text-center">
+                <div class="stat-icon"><i class="fas fa-star"></i></div>
+                <div class="stat-value" id="total-stars">0</div>
+                <div class="stat-label">Total Stars in Favorites</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card text-center">
+                <div class="stat-icon"><i class="fas fa-heart"></i></div>
+                <div class="stat-value" id="favorite-count">0</div>
+                <div class="stat-label">Favorite Repositories</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card text-center">
+                <div class="stat-icon"><i class="fas fa-code"></i></div>
+                <div class="stat-value" id="language-count">0</div>
+                <div class="stat-label">Languages Tracked</div>
+            </div>
         </div>
     </div>
 
     <!-- Search Bar -->
     <div class="row mb-4">
         <div class="col-md-10 mx-auto">
-            <div class="input-group input-group-lg">
-                <input type="text" class="form-control" id="search-input" placeholder="Search repositories...">
-                <button class="btn btn-dark" type="button" id="search-btn">
-                    <i class="fas fa-search"></i> Search
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Quick Access -->
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="card bg-primary text-white hover-lift" style="cursor: pointer;" onclick="showTrending()">
-                <div class="card-body text-center">
-                    <i class="fas fa-fire fa-3x mb-2"></i>
-                    <h5>Trending</h5>
-                    <p class="mb-0">Popular repositories</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card bg-success text-white hover-lift" style="cursor: pointer;" onclick="showLanguages()">
-                <div class="card-body text-center">
-                    <i class="fas fa-code fa-3x mb-2"></i>
-                    <h5>By Language</h5>
-                    <p class="mb-0">Filter by programming language</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card bg-info text-white hover-lift" style="cursor: pointer;" onclick="showAnalyze()">
-                <div class="card-body text-center">
-                    <i class="fas fa-chart-bar fa-3x mb-2"></i>
-                    <h5>Analyze Repo</h5>
-                    <p class="mb-0">Deep dive into a repository</p>
+            <div class="glass-card p-4">
+                <div class="input-group input-group-lg">
+                    <span class="input-group-text bg-white border-0">
+                        <i class="fas fa-search text-primary"></i>
+                    </span>
+                    <input type="text" class="form-control border-0" id="search-input" 
+                           placeholder="Search repositories (e.g., 'flask api' or 'language:python machine learning')">
+                    <button class="btn btn-modern" type="button" id="search-btn">
+                        <i class="fas fa-search me-2"></i> Search
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Results Container -->
-    <div class="row">
-        <div class="col-12">
-            <div id="results-container">
-                <!-- Dynamic content will be loaded here -->
-            </div>
-        </div>
-    </div>
-</div>
+    <!-- Tabs -->
+    <ul class="nav nav-pills mb-4 justify-content-center glass-card p-3" role="tablist">
+        <li class="nav-item">
+            <button class="nav-link active px-4 py-2" data-bs-toggle="tab" data-bs-target="#trending-tab">
+                <i class="fas fa-fire"></i> Trending
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link px-4 py-2" data-bs-toggle="tab" data-bs-target="#favorites-tab">
+                <i class="fas fa-heart"></i> My Favorites
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link px-4 py-2" data-bs-toggle="tab" data-bs-target="#languages-tab">
+                <i class="fas fa-code"></i> By Language
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link px-4 py-2" data-bs-toggle="tab" data-bs-target="#search-tab">
+                <i class="fas fa-search"></i> Search Results
+            </button>
+        </li>
+    </ul>
 
-<!-- Analyze Modal -->
-<div class="modal fade" id="analyzeModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Analyze Repository</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label class="form-label">Repository (owner/repo)</label>
-                    <input type="text" class="form-control" id="analyze-input" placeholder="e.g., facebook/react">
+    <!-- Tab Content -->
+    <div class="tab-content">
+        <!-- Trending Tab -->
+        <div class="tab-pane fade show active" id="trending-tab">
+            <div class="glass-card">
+                <div class="card-header-gradient">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-fire"></i> Trending Repositories</span>
+                        <select class="form-select form-select-sm border-0" id="trending-period" 
+                                style="max-width: 150px; background: rgba(255,255,255,0.2);">
+                            <option value="daily">Today</option>
+                            <option value="weekly">This Week</option>
+                            <option value="monthly">This Month</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row" id="trending-container">
+                        <div class="col-12 text-center py-5">
+                            <div class="spinner-border text-primary"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" onclick="analyzeRepo()">Analyze</button>
+        </div>
+
+        <!-- Favorites Tab -->
+        <div class="tab-pane fade" id="favorites-tab">
+            <div class="glass-card">
+                <div class="card-header-gradient">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-heart"></i> My Favorite Repositories</span>
+                        <button class="btn btn-sm btn-light" id="clear-favorites-btn">
+                            <i class="fas fa-trash me-2"></i>Clear All
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body" id="favorites-container">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        You haven't saved any repositories yet. Click the ❤️ icon on any repository to add it to favorites!
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Languages Tab -->
+        <div class="tab-pane fade" id="languages-tab">
+            <div class="glass-card">
+                <div class="card-header-gradient">
+                    <i class="fas fa-code"></i> Browse by Language
+                </div>
+                <div class="card-body">
+                    <div class="row g-3" id="languages-grid">
+                        <!-- JavaScript -->
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-warning w-100 py-3" onclick="searchByLanguage('javascript')">
+                                <i class="fab fa-js fa-2x mb-2"></i>
+                                <br><strong>JavaScript</strong>
+                            </button>
+                        </div>
+                        <!-- Python -->
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-primary w-100 py-3" onclick="searchByLanguage('python')">
+                                <i class="fab fa-python fa-2x mb-2"></i>
+                                <br><strong>Python</strong>
+                            </button>
+                        </div>
+                        <!-- Java -->
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-danger w-100 py-3" onclick="searchByLanguage('java')">
+                                <i class="fab fa-java fa-2x mb-2"></i>
+                                <br><strong>Java</strong>
+                            </button>
+                        </div>
+                        <!-- TypeScript -->
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-info w-100 py-3" onclick="searchByLanguage('typescript')">
+                                <i class="fas fa-code fa-2x mb-2"></i>
+                                <br><strong>TypeScript</strong>
+                            </button>
+                        </div>
+                        <!-- Go -->
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-success w-100 py-3" onclick="searchByLanguage('go')">
+                                <i class="fas fa-gopuram fa-2x mb-2"></i>
+                                <br><strong>Go</strong>
+                            </button>
+                        </div>
+                        <!-- Rust -->
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-secondary w-100 py-3" onclick="searchByLanguage('rust')">
+                                <i class="fas fa-gear fa-2x mb-2"></i>
+                                <br><strong>Rust</strong>
+                            </button>
+                        </div>
+                        <!-- C++ -->
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-primary w-100 py-3" onclick="searchByLanguage('cpp')">
+                                <i class="fas fa-code fa-2x mb-2"></i>
+                                <br><strong>C++</strong>
+                            </button>
+                        </div>
+                        <!-- Ruby -->
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-danger w-100 py-3" onclick="searchByLanguage('ruby')">
+                                <i class="fas fa-gem fa-2x mb-2"></i>
+                                <br><strong>Ruby</strong>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Results Tab -->
+        <div class="tab-pane fade" id="search-tab">
+            <div class="glass-card">
+                <div class="card-header-gradient">
+                    <i class="fas fa-search"></i> Search Results
+                </div>
+                <div class="card-body">
+                    <div class="row" id="search-results-container">
+                        <div class="col-12">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Use the search bar above to find repositories
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -91,71 +220,188 @@
 
 {% block extra_js %}
 <script>
-// Search repositories
-function searchRepositories() {
-    const query = document.getElementById('search-input').value.trim();
-    if (!query) return;
+const FAVORITES_KEY = 'github_favorites';
 
-    const container = document.getElementById('results-container');
-    container.innerHTML = '<div class="text-center"><div class="spinner-border"></div></div>';
-
-    fetch(`/github/api/search/repositories?q=${encodeURIComponent(query)}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success && data.results.length > 0) {
-                displayRepositories(data.results);
-            } else {
-                container.innerHTML = `
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle"></i> No repositories found
-                    </div>
-                `;
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            container.innerHTML = `
-                <div class="alert alert-danger">
-                    <i class="fas fa-exclamation-triangle"></i> Error searching repositories
-                </div>
-            `;
-        });
+// Get favorites from localStorage
+function getFavorites() {
+    const saved = localStorage.getItem(FAVORITES_KEY);
+    return saved ? JSON.parse(saved) : [];
 }
 
-// Display repositories
-function displayRepositories(repos) {
-    let html = '<div class="row">';
+function saveFavorites(favorites) {
+    localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+    updateFavoriteStats();
+}
+
+function isFavorite(repoId) {
+    const favorites = getFavorites();
+    return favorites.some(fav => fav.id === repoId);
+}
+
+function toggleFavorite(repo) {
+    let favorites = getFavorites();
+    const index = favorites.findIndex(fav => fav.id === repo.id);
+    
+    if (index > -1) {
+        favorites.splice(index, 1);
+        Utils.showToast('Removed from favorites', 'info');
+    } else {
+        favorites.push({
+            id: repo.id,
+            name: repo.name || repo.full_name,
+            full_name: repo.full_name,
+            description: repo.description,
+            html_url: repo.html_url || repo.url,
+            language: repo.language,
+            stars: repo.stargazers_count || repo.stars || 0,
+            forks: repo.forks_count || repo.forks || 0,
+            saved_at: new Date().toISOString()
+        });
+        Utils.showToast('Added to favorites!', 'success');
+    }
+    
+    saveFavorites(favorites);
+    
+    // Update heart icon if visible
+    const heartIcon = $(`#fav-${repo.id}`);
+    if (heartIcon.length) {
+        heartIcon.toggleClass('text-danger');
+        heartIcon.find('i').toggleClass('fas far');
+    }
+}
+
+function updateFavoriteStats() {
+    const favorites = getFavorites();
+    $('#favorite-count').text(favorites.length);
+    
+    const totalStars = favorites.reduce((sum, repo) => sum + (repo.stars || 0), 0);
+    $('#total-stars').text(totalStars.toLocaleString());
+    
+    const languages = new Set(favorites.map(r => r.language).filter(Boolean));
+    $('#language-count').text(languages.size);
+}
+
+// Display repositories with favorite toggle
+function displayRepositories(repos, containerId) {
+    const container = $(`#${containerId}`);
+    
+    if (!repos || repos.length === 0) {
+        container.html(`
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    No repositories found
+                </div>
+            </div>
+        `);
+        return;
+    }
+    
+    let html = '';
     
     repos.forEach(repo => {
         const language = repo.language || 'Unknown';
         const description = repo.description || 'No description available';
+        const stars = repo.stargazers_count || repo.stars || 0;
+        const forks = repo.forks_count || repo.forks || 0;
+        const fullName = repo.full_name || repo.name;
+        const url = repo.html_url || repo.url;
+        const repoId = repo.id;
+        
+        const isFav = isFavorite(repoId);
+        const heartClass = isFav ? 'fas text-danger' : 'far';
         
         html += `
-            <div class="col-md-6 mb-3">
-                <div class="card h-100 hover-lift">
+            <div class="col-md-6 mb-4 animate-in">
+                <div class="card border-0 h-100 shadow-sm" style="border-radius: 20px;">
                     <div class="card-body">
-                        <h5 class="card-title">
-                            <a href="${repo.html_url}" target="_blank" class="text-decoration-none">
-                                ${repo.full_name}
-                            </a>
-                        </h5>
-                        <p class="card-text text-muted">${description}</p>
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h5 class="card-title mb-0">
+                                <i class="fab fa-github me-2"></i>
+                                <a href="${url}" target="_blank" class="text-decoration-none">
+                                    ${fullName}
+                                </a>
+                            </h5>
+                            <button class="btn btn-sm btn-light" id="fav-${repoId}" 
+                                    onclick='toggleFavorite(${JSON.stringify(repo).replace(/'/g, "&apos;")})'>
+                                <i class="${heartClass} fa-heart"></i>
+                            </button>
+                        </div>
+                        <p class="card-text text-muted mb-3">${description}</p>
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <span class="badge bg-primary">${language}</span>
                             </div>
                             <div class="text-end">
                                 <small class="text-muted">
-                                    <i class="fas fa-star text-warning"></i> ${(repo.stargazers_count || 0).toLocaleString()}
-                                    <i class="fas fa-code-branch ms-2"></i> ${(repo.forks_count || 0).toLocaleString()}
+                                    <i class="fas fa-star text-warning"></i> ${stars.toLocaleString()}
+                                    <i class="fas fa-code-branch ms-2"></i> ${forks.toLocaleString()}
                                 </small>
                             </div>
                         </div>
                     </div>
-                    <div class="card-footer bg-transparent">
-                        <button class="btn btn-sm btn-outline-primary" onclick="viewRepoDetails('${repo.owner.login}', '${repo.name}')">
-                            View Details
-                        </button>
+                </div>
+            </div>
+        `;
+    });
+    
+    container.html(html);
+}
+
+// Display favorites
+function displayFavorites() {
+    const favorites = getFavorites();
+    const container = $('#favorites-container');
+    
+    if (favorites.length === 0) {
+        container.html(`
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                You haven't saved any repositories yet. Click the ❤️ icon on any repository to add it to favorites!
+            </div>
+        `);
+        return;
+    }
+    
+    // Sort by most recent
+    favorites.sort((a, b) => new Date(b.saved_at) - new Date(a.saved_at));
+    
+    let html = '<div class="row">';
+    
+    favorites.forEach(repo => {
+        html += `
+            <div class="col-md-6 mb-4">
+                <div class="card border-0 h-100 shadow-sm" style="border-radius: 20px;">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h5 class="card-title mb-0">
+                                <i class="fab fa-github me-2"></i>
+                                <a href="${repo.html_url}" target="_blank" class="text-decoration-none">
+                                    ${repo.full_name}
+                                </a>
+                            </h5>
+                            <button class="btn btn-sm btn-danger" onclick='toggleFavorite(${JSON.stringify(repo).replace(/'/g, "&apos;")})'>
+                                <i class="fas fa-heart"></i>
+                            </button>
+                        </div>
+                        <p class="card-text text-muted mb-3">${repo.description || 'No description'}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="badge bg-primary">${repo.language || 'Unknown'}</span>
+                            </div>
+                            <div class="text-end">
+                                <small class="text-muted">
+                                    <i class="fas fa-star text-warning"></i> ${repo.stars.toLocaleString()}
+                                    <i class="fas fa-code-branch ms-2"></i> ${repo.forks.toLocaleString()}
+                                </small>
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <small class="text-muted">
+                                <i class="fas fa-clock me-1"></i>
+                                Saved ${Utils.timeAgo(repo.saved_at)}
+                            </small>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -163,166 +409,134 @@ function displayRepositories(repos) {
     });
     
     html += '</div>';
-    document.getElementById('results-container').innerHTML = html;
+    container.html(html);
 }
 
-// Show trending
-function showTrending() {
-    const container = document.getElementById('results-container');
-    container.innerHTML = '<div class="text-center"><div class="spinner-border"></div></div>';
-
-    fetch('/github/api/trending')
+// Load trending
+function loadTrending(period = 'daily') {
+    const container = $('#trending-container');
+    container.html('<div class="col-12 text-center py-5"><div class="spinner-border text-primary"></div></div>');
+    
+    fetch(`/github/api/trending?since=${period}`)
         .then(response => response.json())
         .then(data => {
-            if (data.success) {
-                displayRepositories(data.repositories);
+            if (data.success && data.repositories) {
+                displayRepositories(data.repositories, 'trending-container');
+            } else {
+                container.html(`
+                    <div class="col-12">
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Error loading trending repositories
+                        </div>
+                    </div>
+                `);
             }
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => {
+            console.error('Error:', error);
+            container.html(`
+                <div class="col-12">
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Error loading trending repositories
+                    </div>
+                </div>
+            `);
+        });
 }
 
-// Show languages
-function showLanguages() {
-    const container = document.getElementById('results-container');
-    const languages = ['JavaScript', 'Python', 'Java', 'Go', 'Rust', 'TypeScript', 'C++', 'Ruby'];
+// Search repositories
+function searchRepositories() {
+    const query = $('#search-input').val().trim();
+    if (!query) {
+        Utils.showToast('Please enter a search query', 'warning');
+        return;
+    }
     
-    let html = `
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Popular Languages</h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-    `;
+    const container = $('#search-results-container');
+    container.html('<div class="col-12 text-center py-5"><div class="spinner-border text-primary"></div></div>');
     
-    languages.forEach(lang => {
-        html += `
-            <div class="col-md-3 mb-3">
-                <button class="btn btn-outline-dark w-100" onclick="searchByLanguage('${lang}')">
-                    <i class="fas fa-code"></i> ${lang}
-                </button>
-            </div>
-        `;
-    });
+    // Switch to search tab
+    $('button[data-bs-target="#search-tab"]').tab('show');
     
-    html += `
+    fetch(`/github/api/search/repositories?q=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.results) {
+                displayRepositories(data.results, 'search-results-container');
+            } else {
+                container.html(`
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            No repositories found for "${query}"
+                        </div>
+                    </div>
+                `);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            container.html(`
+                <div class="col-12">
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Error searching repositories
+                    </div>
                 </div>
-            </div>
-        </div>
-    `;
-    
-    container.innerHTML = html;
+            `);
+        });
 }
 
 // Search by language
 function searchByLanguage(language) {
-    document.getElementById('search-input').value = `language:${language}`;
+    $('#search-input').val(`language:${language}`);
     searchRepositories();
 }
 
-// Show analyze modal
-function showAnalyze() {
-    const modal = new bootstrap.Modal(document.getElementById('analyzeModal'));
-    modal.show();
-}
-
-// Analyze repository
-function analyzeRepo() {
-    const input = document.getElementById('analyze-input').value.trim();
-    if (!input || !input.includes('/')) {
-        Utils.showToast('Please enter repository in format: owner/repo', 'danger');
-        return;
-    }
-
-    const [owner, repo] = input.split('/');
-    viewRepoDetails(owner, repo);
-    bootstrap.Modal.getInstance(document.getElementById('analyzeModal')).hide();
-}
-
-// View repository details
-function viewRepoDetails(owner, repo) {
-    const container = document.getElementById('results-container');
-    container.innerHTML = '<div class="text-center"><div class="spinner-border"></div></div>';
-
-    fetch(`/github/api/repo/${owner}/${repo}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                displayRepoDetails(data.repository);
-            }
-        })
-        .catch(error => console.error('Error:', error));
-}
-
-// Display repository details
-function displayRepoDetails(repo) {
-    const html = `
-        <div class="card">
-            <div class="card-header bg-dark text-white">
-                <h4 class="mb-0">
-                    <i class="fab fa-github"></i> ${repo.full_name}
-                </h4>
-            </div>
-            <div class="card-body">
-                <p class="lead">${repo.description || 'No description'}</p>
-                <hr>
-                <div class="row mb-3">
-                    <div class="col-md-3 text-center">
-                        <h3>${(repo.stargazers_count || 0).toLocaleString()}</h3>
-                        <small class="text-muted">Stars</small>
-                    </div>
-                    <div class="col-md-3 text-center">
-                        <h3>${(repo.forks_count || 0).toLocaleString()}</h3>
-                        <small class="text-muted">Forks</small>
-                    </div>
-                    <div class="col-md-3 text-center">
-                        <h3>${(repo.watchers_count || 0).toLocaleString()}</h3>
-                        <small class="text-muted">Watchers</small>
-                    </div>
-                    <div class="col-md-3 text-center">
-                        <h3>${(repo.open_issues_count || 0).toLocaleString()}</h3>
-                        <small class="text-muted">Issues</small>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6">
-                        <p><strong>Language:</strong> ${repo.language || 'Not specified'}</p>
-                        <p><strong>License:</strong> ${repo.license ? repo.license.name : 'None'}</p>
-                        <p><strong>Created:</strong> ${Utils.formatDate(repo.created_at)}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <p><strong>Updated:</strong> ${Utils.formatDate(repo.updated_at)}</p>
-                        <p><strong>Size:</strong> ${(repo.size || 0).toLocaleString()} KB</p>
-                        <p><strong>Default Branch:</strong> ${repo.default_branch}</p>
-                    </div>
-                </div>
-                <hr>
-                <a href="${repo.html_url}" target="_blank" class="btn btn-primary">
-                    <i class="fas fa-external-link-alt"></i> View on GitHub
-                </a>
-                <button class="btn btn-secondary" onclick="showTrending()">
-                    <i class="fas fa-arrow-left"></i> Back to Results
-                </button>
-            </div>
-        </div>
-    `;
+// Clear all favorites
+$('#clear-favorites-btn').click(function() {
+    if (!confirm('Remove all favorite repositories?')) return;
     
-    document.getElementById('results-container').innerHTML = html;
-}
+    localStorage.removeItem(FAVORITES_KEY);
+    updateFavoriteStats();
+    displayFavorites();
+    Utils.showToast('All favorites cleared', 'info');
+});
+
+// Trending period change
+$('#trending-period').change(function() {
+    loadTrending($(this).val());
+});
 
 // Search button
-document.getElementById('search-btn').addEventListener('click', searchRepositories);
+$('#search-btn').click(searchRepositories);
 
-// Enter key
-document.getElementById('search-input').addEventListener('keypress', function(e) {
+// Enter key in search
+$('#search-input').keypress(function(e) {
     if (e.key === 'Enter') {
         searchRepositories();
     }
 });
 
-// Load trending on page load
-document.addEventListener('DOMContentLoaded', function() {
-    showTrending();
+// Tab change events
+$('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+    const target = $(e.target).attr('data-bs-target');
+    
+    if (target === '#favorites-tab') {
+        displayFavorites();
+    } else if (target === '#trending-tab') {
+        if ($('#trending-container .spinner-border').length) {
+            loadTrending('daily');
+        }
+    }
+});
+
+// Initialize
+$(document).ready(function() {
+    updateFavoriteStats();
+    loadTrending('daily');
 });
 </script>
 {% endblock %}
