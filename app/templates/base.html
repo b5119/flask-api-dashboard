@@ -304,19 +304,19 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {% if active_page == 'news' %}active{% endif %}" 
-                           href="{{ url_for('news.news_home') }}">
+                           href="{{ url_for('news.index') }}">
                             <i class="fas fa-newspaper"></i> News
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {% if active_page == 'weather' %}active{% endif %}" 
-                           href="{{ url_for('weather.weather_home') }}">
+                           href="{{ url_for('weather.index') }}">
                             <i class="fas fa-cloud-sun"></i> Weather
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {% if active_page == 'crypto' %}active{% endif %}" 
-                           href="{{ url_for('crypto.crypto_home') }}">
+                           href="{{ url_for('crypto.index') }}">
                             <i class="fab fa-bitcoin"></i> Crypto
                         </a>
                     </li>

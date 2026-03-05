@@ -1,5 +1,5 @@
 """
-Flask Application Entry Point with WebSocket Support
+Flask Application Entry Point
 """
 from app import create_app, db
 from app.models import User, SavedArticle, CryptoHolding
@@ -30,9 +30,14 @@ def init_db():
     db.create_all()
     print("✅ Database initialized!")
 
+@app.cli.command()
+def seed_db():
+    """Seed database with sample data"""
+    # Add sample data here
+    print("✅ Database seeded!")
+
 if __name__ == '__main__':
-    socketio.run(
-        app,
+    app.run(
         host='0.0.0.0',
         port=int(os.getenv('PORT', 5000)),
         debug=os.getenv('FLASK_ENV') == 'development'
