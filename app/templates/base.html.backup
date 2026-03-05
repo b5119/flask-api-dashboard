@@ -278,10 +278,6 @@
             }
         }
     </style>
-    <!-- Dark Mode -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/dark-mode.css') }}">
-    <!-- Mobile Responsive -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile.css') }}">
 </head>
 <body>
     <!-- Navigation -->
@@ -325,11 +321,6 @@
                            href="{{ url_for('github.github_home') }}">
                             <i class="fab fa-github"></i> GitHub
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <button id="theme-toggle" class="btn btn-outline-light btn-sm ms-2" title="Toggle dark mode">
-                            <i class="fas fa-moon"></i>
-                        </button>
                     </li>
                 </ul>
             </div>
@@ -445,7 +436,5 @@
     </script>
     
     {% block extra_js %}{% endblock %}
-    <!-- Dark Mode Toggle -->
-    <script src="{{ url_for('static', filename='js/dark-mode.js') }}"></script>
 </body>
 </html>

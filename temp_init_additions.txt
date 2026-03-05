@@ -1,0 +1,11 @@
+
+# Import logger and rate limiter
+from app.utils.logger import setup_logger
+from app.utils.rate_limit import init_limiter
+
+# In create_app function, after app creation:
+# Setup logging
+setup_logger(app)
+
+# Setup rate limiting
+limiter = init_limiter(app)

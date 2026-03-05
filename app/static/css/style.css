@@ -364,3 +364,21 @@ canvas {
 .shadow-sm-hover:hover {
     box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15) !important;
 }
+/* WebSocket price animations */
+.price-up {
+    animation: priceUpAnimation 1s ease;
+}
+
+.price-down {
+    animation: priceDownAnimation 1s ease;
+}
+
+@keyframes priceUpAnimation {
+    0%, 100% { color: inherit; }
+    50% { color: #10b981; font-weight: bold; }
+}
+
+@keyframes priceDownAnimation {
+    0%, 100% { color: inherit; }
+    50% { color: #ef4444; font-weight: bold; }
+}

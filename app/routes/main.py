@@ -428,3 +428,24 @@ def test_apis():
         results['github'] = f'Error: {str(e)}'
     
     return jsonify(results)
+
+
+@main_bp.route('/health')
+def health_check():
+    """API health check endpoint"""
+    from datetime import datetime
+    
+    status = {
+        'news': news_api.check_status(),
+        'weather': weather_api.check_status(),
+        'crypto': crypto_api.check_status(),
+        'github': github_api.check_status()
+    }
+    
+    all_ok = all(status.values())
+    
+    return jsonify({
+        'status': 'healthy' if all_ok else 'degraded',
+        'services': status,
+        'timestamp': datetime.now().isoformat()
+    }), 200 if all_ok else 503

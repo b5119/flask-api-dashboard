@@ -40,3 +40,20 @@ config = {
     'testing': TestingConfig,
     'default': DevelopmentConfig
 }
+class ProductionConfig(Config):
+    """Production configuration"""
+    DEBUG = False
+    TESTING = False
+    
+    # Database connection pooling
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        'pool_size': 10,
+        'pool_recycle': 3600,
+        'pool_pre_ping': True,
+        'max_overflow': 20,
+        'pool_timeout': 30
+    }
+    
+    # Enable query optimization
+    SQLALCHEMY_RECORD_QUERIES = True
+    SQLALCHEMY_TRACK_MODIFICATIONS = False

@@ -1,13 +1,11 @@
 """
-Flask API Dashboard - Main Application Entry Point
+Flask Application Entry Point with WebSocket Support
 """
-
 from app import create_app, db
 from app.models import User, SavedArticle, CryptoHolding
 import os
 
-# ✅ Fixed line — no config argument needed
-app = create_app()
+app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 
 @app.shell_context_processor
 def make_shell_context():
@@ -32,14 +30,9 @@ def init_db():
     db.create_all()
     print("✅ Database initialized!")
 
-@app.cli.command()
-def seed_db():
-    """Seed database with sample data"""
-    # Add sample data here
-    print("✅ Database seeded!")
-
 if __name__ == '__main__':
-    app.run(
+    socketio.run(
+        app,
         host='0.0.0.0',
         port=int(os.getenv('PORT', 5000)),
         debug=os.getenv('FLASK_ENV') == 'development'
