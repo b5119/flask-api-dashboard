@@ -178,6 +178,10 @@ All user preferences saved locally (no database required for basic features):
 - ✅ Works offline for saved data
 - ✅ Privacy-friendly (data stays on device)
 - ✅ No database setup needed
+- **Dark Mode**
+   - Toggle light/dark theme
+   - Auto-detect system preference
+   - Per-page theme settings
 
 ---
 
@@ -291,10 +295,6 @@ FLASK_ENV=development
    - Generate reports
    - Tax calculations
 
-6. **Dark Mode**
-   - Toggle light/dark theme
-   - Auto-detect system preference
-   - Per-page theme settings
 
 ---
 
