@@ -241,7 +241,10 @@ FLASK_ENV=development
 - Hamburger menu
 - Optimized font sizes
 - Responsive images
-
+6. **Dark Mode**
+   - Toggle light/dark theme
+   - Auto-detect system preference
+   - Per-page theme settings
 ---
 
 ## 🎯 Feature Comparison
@@ -291,10 +294,7 @@ FLASK_ENV=development
    - Generate reports
    - Tax calculations
 
-6. **Dark Mode**
-   - Toggle light/dark theme
-   - Auto-detect system preference
-   - Per-page theme settings
+
 
 ---
 
