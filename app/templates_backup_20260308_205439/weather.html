@@ -1,0 +1,425 @@
+{% extends "base.html" %}
+
+{% block title %}Weather{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Header -->
+    <div class="row mb-4 text-white text-center animate-in">
+        <div class="col-12">
+            <h1 class="display-4 fw-bold">
+                <i class="fas fa-cloud-sun"></i> Weather Station
+            </h1>
+            <p class="lead">Real-time weather and 5-day forecast</p>
+        </div>
+    </div>
+
+    <!-- Location Controls -->
+    <div class="row mb-4">
+        <div class="col-lg-8 mx-auto">
+            <div class="glass-card p-4">
+                <div class="row g-3">
+                    <!-- City Search -->
+                    <div class="col-md-7">
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-white border-0">
+                                <i class="fas fa-search text-primary"></i>
+                            </span>
+                            <input type="text" class="form-control border-0" 
+                                   id="city-input" 
+                                   placeholder="Search city..."
+                                   value="London">
+                            <button class="btn btn-modern" type="button" id="search-btn">
+                                <i class="fas fa-search me-2"></i> Search
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Actions -->
+                    <div class="col-md-5">
+                        <div class="btn-group w-100" role="group">
+                            <button class="btn btn-outline-primary" id="use-location-btn" title="Use my location">
+                                <i class="fas fa-crosshairs"></i> My Location
+                            </button>
+                            <button class="btn btn-outline-success" id="save-city-btn" title="Save current city">
+                                <i class="fas fa-heart"></i> Save
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Saved Cities -->
+                <div id="saved-cities-container" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Current Weather -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="glass-card animate-in" style="animation-delay: 0.1s;">
+                <div class="card-header-gradient">
+                    <i class="fas fa-map-marker-alt"></i> Current Weather
+                </div>
+                <div class="card-body p-4" id="current-weather">
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary"></div>
+                        <p class="mt-3 text-muted">Loading weather data...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5-Day Forecast -->
+    <div class="row">
+        <div class="col-12">
+            <div class="glass-card animate-in" style="animation-delay: 0.2s;">
+                <div class="card-header-gradient">
+                    <i class="fas fa-calendar-alt"></i> 5-Day Forecast
+                </div>
+                <div class="card-body p-4" id="forecast-container">
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-success"></div>
+                        <p class="mt-3 text-muted">Loading forecast...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentCity = 'London';
+const STORAGE_KEY = 'weather_saved_cities';
+const DEFAULT_CITY_KEY = 'weather_default_city';
+
+// Weather icon mapping
+const weatherIcons = {
+    '01d': 'fa-sun', '01n': 'fa-moon',
+    '02d': 'fa-cloud-sun', '02n': 'fa-cloud-moon',
+    '03d': 'fa-cloud', '03n': 'fa-cloud',
+    '04d': 'fa-cloud', '04n': 'fa-cloud',
+    '09d': 'fa-cloud-showers-heavy', '09n': 'fa-cloud-showers-heavy',
+    '10d': 'fa-cloud-sun-rain', '10n': 'fa-cloud-moon-rain',
+    '11d': 'fa-bolt', '11n': 'fa-bolt',
+    '13d': 'fa-snowflake', '13n': 'fa-snowflake',
+    '50d': 'fa-smog', '50n': 'fa-smog'
+};
+
+// Load saved cities from localStorage
+function getSavedCities() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    return saved ? JSON.parse(saved) : [];
+}
+
+function getDefaultCity() {
+    return localStorage.getItem(DEFAULT_CITY_KEY) || 'London';
+}
+
+function saveCity(city) {
+    let cities = getSavedCities();
+    if (!cities.includes(city)) {
+        cities.push(city);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(cities));
+        displaySavedCities();
+        Utils.showToast(`${city} saved to favorites!`, 'success');
+    } else {
+        Utils.showToast(`${city} is already in favorites`, 'info');
+    }
+}
+
+function removeCity(city) {
+    let cities = getSavedCities();
+    cities = cities.filter(c => c !== city);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(cities));
+    displaySavedCities();
+}
+
+function setDefaultCity(city) {
+    localStorage.setItem(DEFAULT_CITY_KEY, city);
+}
+
+function displaySavedCities() {
+    const cities = getSavedCities();
+    const container = document.getElementById('saved-cities-container');
+    
+    if (cities.length === 0) {
+        container.innerHTML = '';
+        return;
+    }
+    
+    let html = '<div class="mt-3"><small class="text-muted fw-bold">SAVED CITIES:</small><div class="d-flex flex-wrap gap-2 mt-2">';
+    
+    cities.forEach(city => {
+        html += `
+            <span class="badge bg-primary px-3 py-2 d-flex align-items-center gap-2" style="font-size: 0.9rem;">
+                <span onclick="loadWeather('${city}')" style="cursor: pointer;">${city}</span>
+                <i class="fas fa-times" onclick="removeCity('${city}')" 
+                   style="cursor: pointer;" title="Remove"></i>
+            </span>
+        `;
+    });
+    
+    html += '</div></div>';
+    container.innerHTML = html;
+}
+
+// Use browser geolocation
+function useMyLocation() {
+    if (!navigator.geolocation) {
+        Utils.showToast('Geolocation not supported by browser', 'danger');
+        return;
+    }
+    
+    Utils.showToast('Getting your location...', 'info');
+    
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            
+            // Reverse geocoding to get city name
+            fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`)
+                .then(response => response.json())
+                .then(data => {
+                    const city = data.address.city || data.address.town || data.address.village || 'Unknown';
+                    document.getElementById('city-input').value = city;
+                    loadWeather(city);
+                    Utils.showToast(`Location detected: ${city}`, 'success');
+                })
+                .catch(error => {
+                    Utils.showToast('Could not determine city name', 'warning');
+                    console.error('Geocoding error:', error);
+                });
+        },
+        (error) => {
+            Utils.showToast('Could not get your location', 'danger');
+            console.error('Geolocation error:', error);
+        }
+    );
+}
+
+// Load weather data
+function loadWeather(city) {
+    currentCity = city;
+    document.getElementById('city-input').value = city;
+    setDefaultCity(city);
+    loadCurrentWeather(city);
+    loadForecast(city);
+}
+
+// Load current weather
+function loadCurrentWeather(city) {
+    const container = document.getElementById('current-weather');
+    container.innerHTML = '<div class="text-center py-5"><div class="spinner-border"></div></div>';
+
+    fetch(`/weather/api/current/${encodeURIComponent(city)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayCurrentWeather(data.weather);
+            } else {
+                container.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i> ${data.error || 'Failed to load weather'}
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            container.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle"></i> Error loading weather data
+                </div>
+            `;
+        });
+}
+
+// Display current weather with modern design
+function displayCurrentWeather(weather) {
+    const icon = weatherIcons[weather.icon] || 'fa-cloud';
+    const html = `
+        <div class="row align-items-center">
+            <div class="col-lg-4 text-center mb-4 mb-lg-0">
+                <i class="fas ${icon} text-warning" style="font-size: 8rem; opacity: 0.9;"></i>
+                <h1 class="display-1 fw-bold mt-4 mb-2">${Math.round(weather.temperature)}°C</h1>
+                <h4 class="text-capitalize text-muted">${weather.description}</h4>
+            </div>
+            
+            <div class="col-lg-4 mb-4 mb-lg-0">
+                <div class="text-center mb-4">
+                    <h3 class="fw-bold mb-1">
+                        <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                        ${weather.city}, ${weather.country}
+                    </h3>
+                </div>
+                
+                <div class="d-grid gap-3">
+                    <div class="d-flex justify-content-between p-3 bg-light rounded-3">
+                        <span><i class="fas fa-thermometer-half text-danger me-2"></i>Feels like</span>
+                        <strong>${Math.round(weather.feels_like)}°C</strong>
+                    </div>
+                    <div class="d-flex justify-content-between p-3 bg-light rounded-3">
+                        <span><i class="fas fa-temperature-high text-warning me-2"></i>High / Low</span>
+                        <strong>${Math.round(weather.temp_max)}° / ${Math.round(weather.temp_min)}°</strong>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="d-grid gap-3">
+                    <div class="d-flex justify-content-between p-3 bg-light rounded-3">
+                        <span><i class="fas fa-tint text-primary me-2"></i>Humidity</span>
+                        <strong>${weather.humidity}%</strong>
+                    </div>
+                    <div class="d-flex justify-content-between p-3 bg-light rounded-3">
+                        <span><i class="fas fa-wind text-info me-2"></i>Wind Speed</span>
+                        <strong>${weather.wind_speed} m/s</strong>
+                    </div>
+                    <div class="d-flex justify-content-between p-3 bg-light rounded-3">
+                        <span><i class="fas fa-compress-arrows-alt text-secondary me-2"></i>Pressure</span>
+                        <strong>${weather.pressure} hPa</strong>
+                    </div>
+                    <div class="d-flex justify-content-between p-3 bg-light rounded-3">
+                        <span><i class="fas fa-cloud text-muted me-2"></i>Cloudiness</span>
+                        <strong>${weather.clouds}%</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="alert alert-info mb-0">
+                    <div class="row text-center">
+                        <div class="col-md-6">
+                            <i class="fas fa-sunrise text-warning fs-4 me-2"></i>
+                            <strong>Sunrise:</strong> ${weather.sunrise}
+                        </div>
+                        <div class="col-md-6">
+                            <i class="fas fa-sunset text-orange fs-4 me-2"></i>
+                            <strong>Sunset:</strong> ${weather.sunset}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    document.getElementById('current-weather').innerHTML = html;
+}
+
+// Load forecast
+function loadForecast(city) {
+    const container = document.getElementById('forecast-container');
+    container.innerHTML = '<div class="text-center py-5"><div class="spinner-border"></div></div>';
+
+    fetch(`/weather/api/forecast/${encodeURIComponent(city)}?days=5`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayForecast(data.forecast);
+            } else {
+                container.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i> ${data.error || 'Failed to load forecast'}
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            container.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle"></i> Error loading forecast
+                </div>
+            `;
+        });
+}
+
+// Display forecast
+function displayForecast(forecast) {
+    const forecasts = forecast.forecasts;
+    const dailyForecasts = {};
+
+    // Group by day
+    forecasts.forEach(item => {
+        const date = item.datetime.split(' ')[0];
+        if (!dailyForecasts[date]) {
+            dailyForecasts[date] = [];
+        }
+        dailyForecasts[date].push(item);
+    });
+
+    let html = '<div class="row g-4">';
+    
+    Object.keys(dailyForecasts).slice(0, 5).forEach((date, index) => {
+        const dayData = dailyForecasts[date];
+        const midday = dayData[Math.floor(dayData.length / 2)];
+        const temps = dayData.map(d => d.temperature);
+        const maxTemp = Math.max(...temps);
+        const minTemp = Math.min(...temps);
+        const icon = weatherIcons[midday.icon] || 'fa-cloud';
+        
+        const dateObj = new Date(date);
+        const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
+        const monthDay = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+        html += `
+            <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="card h-100 text-center border-0 shadow-sm hover-lift" style="border-radius: 20px;">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-1">${dayName}</h5>
+                        <p class="text-muted small mb-3">${monthDay}</p>
+                        <i class="fas ${icon} text-warning mb-3" style="font-size: 3rem;"></i>
+                        <h4 class="fw-bold mb-1">${Math.round(maxTemp)}°</h4>
+                        <p class="text-muted mb-2">${Math.round(minTemp)}°</p>
+                        <p class="small text-capitalize mb-3">${midday.description}</p>
+                        <div class="d-flex justify-content-around small">
+                            <span title="Humidity"><i class="fas fa-tint text-primary"></i> ${midday.humidity}%</span>
+                            <span title="Wind"><i class="fas fa-wind text-info"></i> ${midday.wind_speed}m/s</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    document.getElementById('forecast-container').innerHTML = html;
+}
+
+// Event listeners
+document.getElementById('search-btn').addEventListener('click', function() {
+    const city = document.getElementById('city-input').value.trim();
+    if (city) {
+        loadWeather(city);
+    }
+});
+
+document.getElementById('city-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        document.getElementById('search-btn').click();
+    }
+});
+
+document.getElementById('use-location-btn').addEventListener('click', useMyLocation);
+
+document.getElementById('save-city-btn').addEventListener('click', function() {
+    saveCity(currentCity);
+});
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    const defaultCity = getDefaultCity();
+    currentCity = defaultCity;
+    document.getElementById('city-input').value = defaultCity;
+    
+    displaySavedCities();
+    loadWeather(defaultCity);
+});
+</script>
+{% endblock %}
