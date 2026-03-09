@@ -1,0 +1,107 @@
+/* Mobile Optimizations */
+
+/* Base mobile styles */
+@media (max-width: 768px) {
+    .container-fluid {
+        padding: 10px;
+    }
+    
+    .card {
+        margin-bottom: 15px;
+    }
+    
+    /* Horizontal scrolling for tabs */
+    .nav-tabs {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE/Edge */
+    }
+    
+    .nav-tabs::-webkit-scrollbar {
+        display: none; /* Chrome/Safari */
+    }
+    
+    .nav-tabs .nav-link {
+        white-space: nowrap;
+        font-size: 14px;
+        padding: 8px 15px;
+    }
+    
+    /* Stack stats cards */
+    .stats-card {
+        margin-bottom: 10px;
+    }
+    
+    .stats-card h2 {
+        font-size: 1.5rem;
+    }
+    
+    /* Mobile navbar */
+    .navbar-brand {
+        font-size: 1.1rem;
+    }
+    
+    /* Adjust card padding */
+    .card-body {
+        padding: 15px;
+    }
+    
+    /* Table responsiveness */
+    .table-responsive {
+        border-radius: 8px;
+    }
+    
+    /* Button groups */
+    .btn-group {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    
+    .btn-group .btn {
+        flex: 1 1 auto;
+        margin: 2px;
+    }
+    
+    /* Modal adjustments */
+    .modal-dialog {
+        margin: 10px;
+    }
+    
+    /* Form inputs */
+    .form-control,
+    .form-select {
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+}
+
+/* Tablet adjustments */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .container-fluid {
+        padding: 15px;
+    }
+    
+    .col-md-6 {
+        padding: 0 10px;
+    }
+}
+
+/* Large screens */
+@media (min-width: 1400px) {
+    .container-fluid {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) {
+    .hover-lift {
+        transition: none;
+    }
+    
+    .btn {
+        min-height: 44px; /* Apple's recommended touch target */
+    }
+}

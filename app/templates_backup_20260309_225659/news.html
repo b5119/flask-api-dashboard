@@ -1,0 +1,407 @@
+{% extends "base.html" %}
+
+{% block title %}News{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Header -->
+    <div class="row mb-4 text-white text-center animate-in">
+        <div class="col-12">
+            <h1 class="display-4 fw-bold">
+                <i class="fas fa-newspaper"></i> Global News Center
+            </h1>
+            <p class="lead">Breaking news from around the world</p>
+        </div>
+    </div>
+
+    <!-- Quick Filters -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="glass-card p-4">
+                <!-- Tabs for Global/Local -->
+                <ul class="nav nav-pills mb-4 justify-content-center" role="tablist" style="background: linear-gradient(135deg, #667eea, #764ba2); padding: 8px; border-radius: 50px;">
+                    <li class="nav-item">
+                        <button class="nav-link active px-4 py-3 fw-bold" id="global-tab" data-bs-toggle="pill" 
+                                data-bs-target="#global-news" type="button"
+                                style="border-radius: 50px; transition: all 0.3s;">
+                            <i class="fas fa-globe me-2"></i> Global Trending
+                        </button>
+                    </li>
+                    <li class="nav-item ms-2">
+                        <button class="nav-link px-4 py-3 fw-bold" id="local-tab" data-bs-toggle="pill" 
+                                data-bs-target="#local-news" type="button"
+                                style="border-radius: 50px; transition: all 0.3s;">
+                            <i class="fas fa-map-marker-alt me-2"></i> Local News
+                        </button>
+                    </li>
+                </ul>
+                
+                <style>
+                    .nav-pills .nav-link {
+                        background: transparent;
+                        color: white !important;
+                        border: 2px solid transparent;
+                    }
+                    .nav-pills .nav-link:hover {
+                        background: rgba(255, 255, 255, 0.15);
+                        transform: translateY(-2px);
+                    }
+                    .nav-pills .nav-link.active {
+                        background: white !important;
+                        color: #667eea !important;
+                        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+                    }
+                </style>
+
+                <div class="tab-content">
+                    <!-- Global News Tab -->
+                    <div class="tab-pane fade show active" id="global-news">
+                        <div class="row g-3">
+                            <!-- Search -->
+                            <div class="col-md-4">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-0">
+                                        <i class="fas fa-search text-primary"></i>
+                                    </span>
+                                    <input type="text" class="form-control border-0" 
+                                           id="global-search" placeholder="Search global news...">
+                                </div>
+                            </div>
+                            
+                            <!-- Category -->
+                            <div class="col-md-4">
+                                <select class="form-select border-0" id="global-category">
+                                    <option value="">All Categories</option>
+                                    <option value="general">📰 General</option>
+                                    <option value="business">💼 Business</option>
+                                    <option value="technology" selected>💻 Technology</option>
+                                    <option value="entertainment">🎬 Entertainment</option>
+                                    <option value="health">⚕️ Health</option>
+                                    <option value="science">🔬 Science</option>
+                                    <option value="sports">⚽ Sports</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Country -->
+                            <div class="col-md-4">
+                                <select class="form-select border-0" id="global-country">
+                                    <option value="">🌍 All Countries</option>
+                                    <option value="us">🇺🇸 United States</option>
+                                    <option value="gb">🇬🇧 United Kingdom</option>
+                                    <option value="ca">🇨🇦 Canada</option>
+                                    <option value="au">🇦🇺 Australia</option>
+                                    <option value="de">🇩🇪 Germany</option>
+                                    <option value="fr">🇫🇷 France</option>
+                                    <option value="jp">🇯🇵 Japan</option>
+                                    <option value="in">🇮🇳 India</option>
+                                    <option value="cn">🇨🇳 China</option>
+                                    <option value="br">🇧🇷 Brazil</option>
+                                    <option value="za">🇿🇦 South Africa</option>
+                                    <option value="ng">🇳🇬 Nigeria</option>
+                                    <option value="ke">🇰🇪 Kenya</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Local News Tab -->
+                    <div class="tab-pane fade" id="local-news">
+                        <div class="row g-3 align-items-center">
+                            <div class="col-md-6">
+                                <div class="alert alert-info mb-0">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <span id="location-status">Detecting your location...</span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-primary w-100" id="detect-location-btn">
+                                    <i class="fas fa-crosshairs me-2"></i> Detect Location
+                                </button>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select border-0" id="local-category">
+                                    <option value="">All Topics</option>
+                                    <option value="general">📰 General</option>
+                                    <option value="business">💼 Business</option>
+                                    <option value="technology">💻 Technology</option>
+                                    <option value="sports">⚽ Sports</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- News Articles Container -->
+    <div class="row" id="news-container">
+        <div class="col-12 text-center py-5">
+            <div class="spinner-border text-white" style="width: 3rem; height: 3rem;"></div>
+            <p class="text-white mt-3">Loading news...</p>
+        </div>
+    </div>
+
+    <!-- Load More Button -->
+    <div class="row mt-4" id="load-more-container" style="display: none;">
+        <div class="col-12 text-center">
+            <button class="btn btn-modern btn-lg" id="load-more-btn">
+                <i class="fas fa-plus-circle me-2"></i> Load More Articles
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentPage = 1;
+let currentMode = 'global';
+let userCountry = null;
+let userCity = null;
+
+// Detect user location
+function detectUserLocation() {
+    if (!navigator.geolocation) {
+        $('#location-status').html('<i class="fas fa-exclamation-triangle me-2"></i>Geolocation not supported');
+        return;
+    }
+    
+    $('#location-status').html('<i class="fas fa-spinner fa-spin me-2"></i>Detecting your location...');
+    
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            
+            // Reverse geocoding
+            fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`)
+                .then(response => response.json())
+                .then(data => {
+                    userCity = data.address.city || data.address.town || data.address.village;
+                    userCountry = data.address.country_code?.toUpperCase();
+                    
+                    $('#location-status').html(`
+                        <i class="fas fa-check-circle me-2"></i>
+                        Location: <strong>${userCity}, ${userCountry}</strong>
+                    `);
+                    
+                    loadLocalNews();
+                    Utils.showToast(`Location detected: ${userCity}!`, 'success');
+                })
+                .catch(error => {
+                    $('#location-status').html('<i class="fas fa-exclamation-triangle me-2"></i>Could not determine location');
+                    console.error('Geocoding error:', error);
+                });
+        },
+        (error) => {
+            $('#location-status').html('<i class="fas fa-exclamation-triangle me-2"></i>Location access denied');
+            Utils.showToast('Please allow location access', 'warning');
+        }
+    );
+}
+
+// Load global news
+function loadGlobalNews(page = 1) {
+    const category = $('#global-category').val();
+    const country = $('#global-country').val();
+    const search = $('#global-search').val().trim();
+    
+    const container = $('#news-container');
+    if (page === 1) {
+        container.html(`
+            <div class="col-12 text-center py-5">
+                <div class="spinner-border text-white" style="width: 3rem; height: 3rem;"></div>
+                <p class="text-white mt-3">Loading global news...</p>
+            </div>
+        `);
+    }
+    
+    let url = `/news/api/headlines?page=${page}&page_size=20`;
+    if (category) url += `&category=${category}`;
+    if (country) url += `&country=${country}`;
+    if (search) url += `&q=${encodeURIComponent(search)}`;
+    
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.articles.length > 0) {
+                displayArticles(data.articles, page === 1);
+                currentPage = page;
+                $('#load-more-container').show();
+            } else {
+                if (page === 1) {
+                    container.html(`
+                        <div class="col-12">
+                            <div class="alert alert-info glass-card">
+                                <i class="fas fa-info-circle me-2"></i>
+                                No articles found. Try different filters.
+                            </div>
+                        </div>
+                    `);
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            container.html(`
+                <div class="col-12">
+                    <div class="alert alert-danger glass-card">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Error loading news. Please try again.
+                    </div>
+                </div>
+            `);
+        });
+}
+
+// Load local news
+function loadLocalNews() {
+    if (!userCity || !userCountry) {
+        $('#news-container').html(`
+            <div class="col-12">
+                <div class="alert alert-warning glass-card">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Please click "Detect Location" to load local news
+                </div>
+            </div>
+        `);
+        return;
+    }
+    
+    const category = $('#local-category').val();
+    const container = $('#news-container');
+    
+    container.html(`
+        <div class="col-12 text-center py-5">
+            <div class="spinner-border text-white" style="width: 3rem; height: 3rem;"></div>
+            <p class="text-white mt-3">Loading local news for ${userCity}...</p>
+        </div>
+    `);
+    
+    let url = `/news/api/headlines?country=${userCountry.toLowerCase()}&q=${encodeURIComponent(userCity)}&page_size=20`;
+    if (category) url += `&category=${category}`;
+    
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.articles.length > 0) {
+                displayArticles(data.articles, true);
+                $('#load-more-container').hide();
+            } else {
+                container.html(`
+                    <div class="col-12">
+                        <div class="alert alert-info glass-card">
+                            <i class="fas fa-info-circle me-2"></i>
+                            No local news found for ${userCity}. Showing ${userCountry} news instead.
+                        </div>
+                    </div>
+                `);
+                // Fallback to country news
+                fetch(`/news/api/headlines?country=${userCountry.toLowerCase()}&page_size=20`)
+                    .then(r => r.json())
+                    .then(d => {
+                        if (d.success) displayArticles(d.articles, true);
+                    });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            container.html(`
+                <div class="col-12">
+                    <div class="alert alert-danger glass-card">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Error loading local news. Please try again.
+                    </div>
+                </div>
+            `);
+        });
+}
+
+// Display articles
+function displayArticles(articles, clearFirst = true) {
+    const container = $('#news-container');
+    
+    if (clearFirst) {
+        container.empty();
+    }
+    
+    let html = '';
+    
+    articles.forEach(article => {
+        const imageUrl = article.urlToImage || article.image || 'https://via.placeholder.com/400x250/667eea/ffffff?text=No+Image';
+        const publishedDate = Utils.timeAgo(article.publishedAt);
+        const source = article.source?.name || 'Unknown Source';
+        
+        html += `
+            <div class="col-md-6 col-lg-4 mb-4 animate-in">
+                <div class="card glass-card h-100 border-0">
+                    <img src="${imageUrl}" class="card-img-top" alt="${article.title}" 
+                         style="height: 200px; object-fit: cover; border-radius: 24px 24px 0 0;"
+                         onerror="this.src='https://via.placeholder.com/400x250/667eea/ffffff?text=No+Image'">
+                    <div class="card-body d-flex flex-column">
+                        <div class="mb-2">
+                            <span class="badge bg-primary">${source}</span>
+                            <span class="badge bg-secondary ms-1">
+                                <i class="fas fa-clock"></i> ${publishedDate}
+                            </span>
+                        </div>
+                        <h5 class="card-title fw-bold">${article.title}</h5>
+                        <p class="card-text text-muted flex-grow-1">${article.description || 'No description available.'}</p>
+                        <div class="mt-auto">
+                            <a href="${article.url}" target="_blank" class="btn btn-modern btn-sm w-100">
+                                <i class="fas fa-external-link-alt me-2"></i>Read Full Article
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    container.append(html);
+}
+
+// Event listeners
+$('#global-tab').on('shown.bs.tab', function() {
+    currentMode = 'global';
+    loadGlobalNews(1);
+});
+
+$('#local-tab').on('shown.bs.tab', function() {
+    currentMode = 'local';
+    if (!userCity) {
+        detectUserLocation();
+    } else {
+        loadLocalNews();
+    }
+});
+
+$('#detect-location-btn').click(detectUserLocation);
+
+$('#global-category, #global-country').change(function() {
+    loadGlobalNews(1);
+});
+
+$('#local-category').change(function() {
+    loadLocalNews();
+});
+
+let searchTimeout;
+$('#global-search').on('input', function() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        loadGlobalNews(1);
+    }, 500);
+});
+
+$('#load-more-btn').click(function() {
+    loadGlobalNews(currentPage + 1);
+});
+
+// Initialize
+$(document).ready(function() {
+    loadGlobalNews(1);
+});
+</script>
+{% endblock %}

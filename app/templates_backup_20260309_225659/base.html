@@ -10,18 +10,21 @@
 {% block extra_css %}{% endblock %}
 </head>
 <body>
+
 <div class="ambient ambient-1"></div>
 <div class="ambient ambient-2"></div>
 <div class="ambient ambient-3"></div>
+
 <div class="toast-container" id="toastContainer"></div>
 
+<!-- Command Palette -->
 <div class="cmd-overlay" id="cmdOverlay">
   <div class="cmd-palette">
     <div class="cmd-input-wrap">
       <span class="cmd-prompt">❯</span>
       <input class="cmd-input" id="cmdInput" placeholder="Search assets, navigate, run commands..." autocomplete="off">
     </div>
-    <div class="cmd-results">
+    <div class="cmd-results" id="cmdResults">
       <div class="cmd-section-label">// NAVIGATE</div>
       <div class="cmd-result-item" data-href="{{ url_for('main.index') }}">
         <div class="cmd-result-icon">⬛</div>
@@ -65,6 +68,8 @@
 </div>
 
 <div class="app-shell">
+
+  <!-- TOPBAR -->
   <header class="topbar">
     <div class="logo">
       <div class="logo-mark">N</div>
@@ -87,6 +92,7 @@
     </div>
   </header>
 
+  <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="nav-section-label">// INTELLIGENCE</div>
     <a class="nav-item {% if request.endpoint == 'main.index' %}active{% endif %}" href="{{ url_for('main.index') }}">
@@ -120,61 +126,73 @@
     </div>
   </aside>
 
+  <!-- PAGE CONTENT -->
   <main class="main-content">
     {% block content %}{% endblock %}
   </main>
+
 </div>
 
+<!-- Terminal Ticker -->
 <div class="terminal-log">
   <div class="log-prefix">❯ LIVE</div>
   <div class="log-ticker">
-    <div class="log-ticker-inner">
-      {% block ticker %}<span class="log-item">NEXUS INTELLIGENCE DASHBOARD · ALL SYSTEMS OPERATIONAL</span>{% endblock %}
+    <div class="log-ticker-inner" id="tickerContent">
+      {% block ticker %}
+      <span class="log-item">NEXUS INTELLIGENCE DASHBOARD · ALL SYSTEMS OPERATIONAL</span>
+      {% endblock %}
     </div>
   </div>
 </div>
 
 <script>
+// Clock
 (function(){
   function tick(){
-    var n=new Date(),h=String(n.getHours()).padStart(2,'0'),m=String(n.getMinutes()).padStart(2,'0'),s=String(n.getSeconds()).padStart(2,'0');
-    var el=document.getElementById('topbarTime');
+    const n=new Date(),h=String(n.getHours()).padStart(2,'0'),m=String(n.getMinutes()).padStart(2,'0'),s=String(n.getSeconds()).padStart(2,'0');
+    const el=document.getElementById('topbarTime');
     if(el)el.textContent=h+':'+m+':'+s;
   }
   setInterval(tick,1000);tick();
 })();
-window.showToast=function(msg,type){
-  type=type||'info';
-  var c=document.getElementById('toastContainer');
-  var t=document.createElement('div');
+
+// Toast
+window.showToast=function(msg,type='info'){
+  const c=document.getElementById('toastContainer');
+  const t=document.createElement('div');
   t.className='toast '+type;
   t.innerHTML='<div class="toast-dot"></div><span>'+msg+'</span>';
   c.appendChild(t);
-  requestAnimationFrame(function(){requestAnimationFrame(function(){t.classList.add('show')})});
-  setTimeout(function(){t.classList.remove('show');setTimeout(function(){t.remove()},400)},3000);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>t.classList.add('show')));
+  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),400)},3000);
 };
-var overlay=document.getElementById('cmdOverlay');
-var cmdInput=document.getElementById('cmdInput');
-document.getElementById('cmdTriggerBtn').addEventListener('click',function(){openCmd()});
-function openCmd(){overlay.classList.add('open');setTimeout(function(){cmdInput.focus()},50)}
+
+// Command Palette
+const overlay=document.getElementById('cmdOverlay');
+const cmdInput=document.getElementById('cmdInput');
+document.getElementById('cmdTriggerBtn').addEventListener('click',()=>openCmd());
+function openCmd(){overlay.classList.add('open');setTimeout(()=>cmdInput.focus(),50)}
 function closeCmd(){overlay.classList.remove('open');cmdInput.value=''}
-overlay.addEventListener('click',function(e){if(e.target===overlay)closeCmd()});
-document.addEventListener('keydown',function(e){
+overlay.addEventListener('click',e=>{if(e.target===overlay)closeCmd()});
+document.addEventListener('keydown',e=>{
   if((e.metaKey||e.ctrlKey)&&e.key==='k'){e.preventDefault();overlay.classList.contains('open')?closeCmd():openCmd()}
   if(e.key==='Escape')closeCmd();
 });
-document.querySelectorAll('.cmd-result-item').forEach(function(item){
-  item.addEventListener('click',function(){
-    var href=item.dataset.href,action=item.dataset.action;
+document.querySelectorAll('.cmd-result-item').forEach(item=>{
+  item.addEventListener('click',()=>{
+    const href=item.dataset.href;
+    const action=item.dataset.action;
     closeCmd();
     if(href)window.location.href=href;
-    else if(action==='refresh')window.location.reload();
+    else if(action==='refresh'){window.location.reload();}
   });
 });
-document.querySelectorAll('.panel-actions').forEach(function(g){
-  g.querySelectorAll('.pill-btn').forEach(function(b){
-    b.addEventListener('click',function(){
-      g.querySelectorAll('.pill-btn').forEach(function(x){x.classList.remove('active')});
+
+// Pill buttons
+document.querySelectorAll('.panel-actions').forEach(g=>{
+  g.querySelectorAll('.pill-btn').forEach(b=>{
+    b.addEventListener('click',()=>{
+      g.querySelectorAll('.pill-btn').forEach(x=>x.classList.remove('active'));
       b.classList.add('active');
     });
   });
