@@ -1,349 +1,207 @@
 {% extends "base.html" %}
-
-{% block title %}Dashboard{% endblock %}
+{% block title %}Overview — API Hub{% endblock %}
 
 {% block content %}
-<div class="container">
-    <!-- Hero Section -->
-    <div class="row mb-5 text-center animate-in">
-        <div class="col-12">
-            <h1 class="hero-title">
-                <i class="fas fa-rocket"></i> Welcome to API Hub
-            </h1>
-            <p class="hero-subtitle">
-                Real-time data from multiple APIs in one beautiful place
-            </p>
-        </div>
-    </div>
-
-    <!-- Quick Stats -->
-    <div class="row g-4 mb-5">
-        <div class="col-md-3 animate-in">
-            <div class="stat-card text-center">
-                <div class="stat-icon">
-                    <i class="fas fa-newspaper"></i>
-                </div>
-                <div class="stat-value" id="news-count">
-                    <div class="spinner-border spinner-border-sm"></div>
-                </div>
-                <div class="stat-label">Latest News</div>
-            </div>
-        </div>
-        
-        <div class="col-md-3 animate-in" style="animation-delay: 0.1s;">
-            <div class="stat-card text-center">
-                <div class="stat-icon">
-                    <i class="fas fa-thermometer-half"></i>
-                </div>
-                <div class="stat-value" id="weather-temp">
-                    <div class="spinner-border spinner-border-sm"></div>
-                </div>
-                <div class="stat-label">Temperature</div>
-            </div>
-        </div>
-        
-        <div class="col-md-3 animate-in" style="animation-delay: 0.2s;">
-            <div class="stat-card text-center">
-                <div class="stat-icon">
-                    <i class="fab fa-bitcoin"></i>
-                </div>
-                <div class="stat-value" id="btc-price">
-                    <div class="spinner-border spinner-border-sm"></div>
-                </div>
-                <div class="stat-label">Bitcoin</div>
-            </div>
-        </div>
-        
-        <div class="col-md-3 animate-in" style="animation-delay: 0.3s;">
-            <div class="stat-card text-center">
-                <div class="stat-icon">
-                    <i class="fab fa-github"></i>
-                </div>
-                <div class="stat-value" id="github-repos">
-                    <div class="spinner-border spinner-border-sm"></div>
-                </div>
-                <div class="stat-label">Trending</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Main Dashboard Content -->
-    <div class="row g-4">
-        <!-- News Widget -->
-        <div class="col-lg-6 animate-in" style="animation-delay: 0.4s;">
-            <div class="glass-card h-100">
-                <div class="card-header-gradient">
-                    <i class="fas fa-newspaper"></i> Latest Tech News
-                </div>
-                <div class="card-body" id="news-widget" style="min-height: 400px;">
-                    <div class="text-center py-5">
-                        <div class="spinner-border text-primary"></div>
-                        <p class="mt-3 text-muted">Loading news...</p>
-                    </div>
-                </div>
-                <div class="card-footer bg-transparent border-0 text-center pb-4">
-                    <a href="{{ url_for('news.index') }}" class="btn btn-modern">
-                        View All News <i class="fas fa-arrow-right ms-2"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Weather Widget -->
-        <div class="col-lg-6 animate-in" style="animation-delay: 0.5s;">
-            <div class="glass-card h-100">
-                <div class="card-header-gradient">
-                    <i class="fas fa-cloud-sun"></i> Current Weather
-                </div>
-                <div class="card-body" id="weather-widget" style="min-height: 400px;">
-                    <div class="text-center py-5">
-                        <div class="spinner-border text-success"></div>
-                        <p class="mt-3 text-muted">Loading weather...</p>
-                    </div>
-                </div>
-                <div class="card-footer bg-transparent border-0 text-center pb-4">
-                    <a href="{{ url_for('weather.index') }}" class="btn btn-modern">
-                        View Forecast <i class="fas fa-arrow-right ms-2"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row g-4 mt-2">
-        <!-- Crypto Widget -->
-        <div class="col-lg-6 animate-in" style="animation-delay: 0.6s;">
-            <div class="glass-card h-100">
-                <div class="card-header-gradient">
-                    <i class="fab fa-bitcoin"></i> Top Cryptocurrencies
-                </div>
-                <div class="card-body" id="crypto-widget" style="min-height: 400px;">
-                    <div class="text-center py-5">
-                        <div class="spinner-border text-warning"></div>
-                        <p class="mt-3 text-muted">Loading crypto prices...</p>
-                    </div>
-                </div>
-                <div class="card-footer bg-transparent border-0 text-center pb-4">
-                    <a href="{{ url_for('crypto.index') }}" class="btn btn-modern">
-                        View All Crypto <i class="fas fa-arrow-right ms-2"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- GitHub Widget -->
-        <div class="col-lg-6 animate-in" style="animation-delay: 0.7s;">
-            <div class="glass-card h-100">
-                <div class="card-header-gradient">
-                    <i class="fab fa-github"></i> Trending Repositories
-                </div>
-                <div class="card-body" id="github-widget" style="min-height: 400px;">
-                    <div class="text-center py-5">
-                        <div class="spinner-border text-info"></div>
-                        <p class="mt-3 text-muted">Loading repositories...</p>
-                    </div>
-                </div>
-                <div class="card-footer bg-transparent border-0 text-center pb-4">
-                    <a href="{{ url_for('github.index') }}" class="btn btn-modern">
-                        Explore GitHub <i class="fas fa-arrow-right ms-2"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="content-header">
+  <div class="panel-title-group">
+    <div class="panel-breadcrumb">API HUB / <span>OVERVIEW</span></div>
+    <div class="panel-heading">Intelligence Dashboard</div>
+  </div>
+  <div class="header-actions">
+    <span class="chip cyan" id="last-updated-chip">SYNCING...</span>
+    <button class="refresh-btn" id="refresh-all-btn">
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+      REFRESH ALL
+    </button>
+  </div>
 </div>
+
+<div class="metrics-row">
+  <div class="glass-card metric-card">
+    <div class="metric-top"><div class="metric-label">LATEST NEWS</div><div class="metric-icon magenta">◈</div></div>
+    <div class="metric-value" id="news-count"><span style="color:var(--text-dim)">—</span></div>
+    <div class="metric-sub"><span class="metric-desc">articles loaded</span></div>
+    <div class="metric-sparkline"><svg viewBox="0 0 120 32" preserveAspectRatio="none"><defs><linearGradient id="sg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="rgba(255,0,255,0.4)"/><stop offset="100%" stop-color="rgba(255,0,255,0)"/></linearGradient></defs><path d="M0,24 L20,20 L40,22 L60,16 L80,12 L100,8 L120,6" fill="none" stroke="#ff00ff" stroke-width="1.5"/><path d="M0,24 L20,20 L40,22 L60,16 L80,12 L100,8 L120,6 L120,32 L0,32Z" fill="url(#sg1)"/></svg></div>
+  </div>
+  <div class="glass-card metric-card">
+    <div class="metric-top"><div class="metric-label">TEMPERATURE</div><div class="metric-icon amber">⛅</div></div>
+    <div class="metric-value" id="weather-temp"><span style="color:var(--text-dim)">—</span></div>
+    <div class="metric-sub"><span class="metric-desc" id="weather-city-label">detecting...</span></div>
+    <div class="metric-sparkline"><svg viewBox="0 0 120 32" preserveAspectRatio="none"><defs><linearGradient id="sg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="rgba(255,183,0,0.4)"/><stop offset="100%" stop-color="rgba(255,183,0,0)"/></linearGradient></defs><path d="M0,20 L20,18 L40,22 L60,14 L80,10 L100,8 L120,12" fill="none" stroke="#ffb700" stroke-width="1.5"/><path d="M0,20 L20,18 L40,22 L60,14 L80,10 L100,8 L120,12 L120,32 L0,32Z" fill="url(#sg2)"/></svg></div>
+  </div>
+  <div class="glass-card metric-card">
+    <div class="metric-top"><div class="metric-label">BITCOIN</div><div class="metric-icon cyan">₿</div></div>
+    <div class="metric-value" id="btc-price"><span style="color:var(--text-dim)">—</span></div>
+    <div class="metric-sub"><span class="metric-delta pos" id="btc-change"></span><span class="metric-desc"> 24h</span></div>
+    <div class="metric-sparkline"><svg viewBox="0 0 120 32" preserveAspectRatio="none"><defs><linearGradient id="sg3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="rgba(0,240,255,0.4)"/><stop offset="100%" stop-color="rgba(0,240,255,0)"/></linearGradient></defs><path d="M0,28 L20,22 L40,24 L60,16 L80,10 L100,5 L120,2" fill="none" stroke="#00f0ff" stroke-width="1.5"/><path d="M0,28 L20,22 L40,24 L60,16 L80,10 L100,5 L120,2 L120,32 L0,32Z" fill="url(#sg3)"/></svg></div>
+  </div>
+  <div class="glass-card metric-card">
+    <div class="metric-top"><div class="metric-label">TRENDING REPOS</div><div class="metric-icon green">◉</div></div>
+    <div class="metric-value" id="github-repos"><span style="color:var(--text-dim)">—</span></div>
+    <div class="metric-sub"><span class="metric-desc">on GitHub today</span></div>
+    <div class="metric-sparkline"><svg viewBox="0 0 120 32" preserveAspectRatio="none"><defs><linearGradient id="sg4" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="rgba(0,255,65,0.4)"/><stop offset="100%" stop-color="rgba(0,255,65,0)"/></linearGradient></defs><path d="M0,28 L20,24 L40,26 L60,18 L80,12 L100,6 L120,4" fill="none" stroke="#00ff41" stroke-width="1.5"/><path d="M0,28 L20,24 L40,26 L60,18 L80,12 L100,6 L120,4 L120,32 L0,32Z" fill="url(#sg4)"/></svg></div>
+  </div>
+</div>
+
+<div class="idx-grid">
+  <div class="glass-card">
+    <div class="panel-header">
+      <div class="panel-title-row"><div class="panel-dot" style="background:var(--magenta);box-shadow:0 0 8px var(--magenta)"></div><div class="panel-title">LATEST TECH NEWS</div></div>
+      <a href="{{ url_for('news.index') }}" class="pill-btn active">VIEW ALL →</a>
+    </div>
+    <div class="panel-body" id="news-widget"><div class="wl"><div class="ld"></div><span>Loading news...</span></div></div>
+  </div>
+  <div class="glass-card">
+    <div class="panel-header">
+      <div class="panel-title-row"><div class="panel-dot" style="background:var(--amber);box-shadow:0 0 8px var(--amber)"></div><div class="panel-title">CURRENT WEATHER</div></div>
+      <a href="{{ url_for('weather.index') }}" class="pill-btn active">FORECAST →</a>
+    </div>
+    <div class="panel-body" id="weather-widget"><div class="wl"><div class="ld" style="background:var(--amber);box-shadow:0 0 8px var(--amber)"></div><span>Loading weather...</span></div></div>
+  </div>
+  <div class="glass-card">
+    <div class="panel-header">
+      <div class="panel-title-row"><div class="panel-dot" style="background:var(--cyan);box-shadow:0 0 8px var(--cyan)"></div><div class="panel-title">TOP CRYPTOCURRENCIES</div></div>
+      <a href="{{ url_for('crypto.index') }}" class="pill-btn active">VIEW ALL →</a>
+    </div>
+    <div class="panel-body p-0" id="crypto-widget"><div class="wl"><div class="ld"></div><span>Loading prices...</span></div></div>
+  </div>
+  <div class="glass-card">
+    <div class="panel-header">
+      <div class="panel-title-row"><div class="panel-dot" style="background:var(--green);box-shadow:0 0 8px var(--green)"></div><div class="panel-title">TRENDING REPOSITORIES</div></div>
+      <a href="{{ url_for('github.index') }}" class="pill-btn active">EXPLORE →</a>
+    </div>
+    <div class="panel-body" id="github-widget"><div class="wl"><div class="ld" style="background:var(--green);box-shadow:0 0 8px var(--green)"></div><span>Loading repos...</span></div></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.idx-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.wl{display:flex;align-items:center;gap:12px;padding:40px 0;justify-content:center;font-family:var(--font-mono);font-size:11px;color:var(--text-dim);}
+.ld{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px var(--cyan);animation:pulse 1.5s infinite;}
+.nfi{padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+.nfi:last-child{border-bottom:none;}
+.nfi-meta{display:flex;align-items:center;gap:8px;margin-bottom:5px;}
+.nfi-src{font-family:var(--font-mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan);}
+.nfi-t{font-family:var(--font-mono);font-size:9px;color:var(--text-dim);margin-left:auto;}
+.nfi-title{font-size:12px;font-weight:500;line-height:1.4;color:var(--text-primary);margin-bottom:4px;}
+.nfi-link{font-family:var(--font-mono);font-size:9px;color:var(--cyan);text-decoration:none;}
+.nfi-link:hover{text-decoration:underline;}
+.wx-row{display:flex;align-items:center;gap:16px;padding:12px 0;}
+.wx-ic{font-size:40px;}
+.wx-tmp{font-family:var(--font-mono);font-size:48px;font-weight:300;line-height:1;color:var(--text-primary);}
+.wx-tmp sup{font-size:18px;color:var(--amber);}
+.wx-info{flex:1;}
+.wx-cond{font-size:12px;color:var(--text-secondary);text-transform:capitalize;}
+.wx-loc{font-family:var(--font-mono);font-size:10px;color:var(--cyan);margin-top:2px;}
+.wx-st{display:flex;flex-direction:column;gap:5px;margin-left:auto;}
+.wx-s{font-family:var(--font-mono);font-size:10px;color:var(--text-secondary);display:flex;gap:8px;}
+.wx-s span{color:var(--text-primary);}
+.mct{width:100%;border-collapse:collapse;}
+.mct td{padding:9px 20px;border-bottom:1px solid rgba(255,255,255,0.03);font-size:12px;}
+.mct tr:hover td{background:var(--bg-glass);}
+.mct tr:last-child td{border-bottom:none;}
+.mct-coin{display:flex;align-items:center;gap:8px;}
+.mct-n{font-weight:500;color:var(--text-primary);font-size:12px;}
+.mct-s{font-family:var(--font-mono);font-size:9px;color:var(--text-dim);}
+.mct-p{font-family:var(--font-mono);font-size:12px;color:var(--text-primary);text-align:right;}
+.mct-c{font-family:var(--font-mono);font-size:11px;text-align:right;font-weight:500;}
+.mct-c.pos{color:var(--green);}
+.mct-c.neg{color:var(--red);}
+.mr{padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+.mr:last-child{border-bottom:none;}
+.mr-n{font-family:var(--font-mono);font-size:11px;color:var(--cyan);margin-bottom:2px;}
+.mr-n a{color:inherit;text-decoration:none;}
+.mr-n a:hover{text-decoration:underline;}
+.mr-d{font-size:11px;color:var(--text-secondary);line-height:1.4;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mr-st{display:flex;gap:12px;font-family:var(--font-mono);font-size:10px;color:var(--text-dim);}
+@media(max-width:900px){.idx-grid{grid-template-columns:1fr;}}
+</style>
+{% endblock %}
+
+{% block ticker %}
+<span class="log-item">API HUB · <span class="val">OVERVIEW</span></span>
+<span class="log-item" id="tk-btc">BTC <span class="val">—</span></span>
+<span class="log-item" id="tk-wx">WEATHER <span class="val">—</span></span>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-// Load dashboard data
-function loadDashboardData() {
-    $.ajax({
-        url: '/dashboard/data',
-        method: 'GET',
-        success: function(response) {
-            if (response.success) {
-                updateDashboard(response.data);
-            } else {
-                console.error('Dashboard load failed');
-            }
-        },
-        error: function(xhr, status, error) {
-            console.error('Dashboard Error:', error);
-            // Show error message with retry
-            Utils.showToast('Failed to load dashboard data. Retrying...', 'danger');
-            setTimeout(loadDashboardData, 5000);
-        }
-    });
+function loadDashboardData(){
+  document.getElementById("refresh-all-btn").classList.add("spinning");
+  $.ajax({url:"/dashboard/data",method:"GET",
+    success:function(r){
+      if(r.success) updateDashboard(r.data);
+      document.getElementById("refresh-all-btn").classList.remove("spinning");
+      document.getElementById("last-updated-chip").textContent="SYNCED "+new Date().toLocaleTimeString();
+    },
+    error:function(){
+      document.getElementById("refresh-all-btn").classList.remove("spinning");
+      showToast("Failed to load data. Retrying...","warn");
+      setTimeout(loadDashboardData,5000);
+    }
+  });
 }
-
-function updateDashboard(data) {
-    // Update stats
-    if (data.news && data.news.articles) {
-        $('#news-count').html(`<span>${data.news.articles.length}</span>`);
-        updateNewsWidget(data.news.articles);
-    } else {
-        $('#news-count').html('<small class="fs-6">N/A</small>');
-    }
-    
-    if (data.weather) {
-        $('#weather-temp').html(`${Math.round(data.weather.temperature)}°C`);
-        updateWeatherWidget(data.weather);
-    } else {
-        $('#weather-temp').html('<small class="fs-6">N/A</small>');
-    }
-    
-    if (data.crypto && data.crypto.bitcoin) {
-        $('#btc-price').html(`${Math.round(data.crypto.bitcoin.usd).toLocaleString()}`);
-        updateCryptoWidget(data.crypto);
-    } else {
-        $('#btc-price').html('<small class="fs-6">N/A</small>');
-    }
-    
-    if (data.github && data.github.length > 0) {
-        $('#github-repos').html(`<span>${data.github.length}</span>`);
-        updateGitHubWidget(data.github);
-    } else {
-        $('#github-repos').html('<small class="fs-6">N/A</small>');
-    }
+function updateDashboard(data){
+  if(data.news&&data.news.articles){$("#news-count").text(data.news.articles.length);updateNewsWidget(data.news.articles);}
+  else $("#news-count").text("N/A");
+  if(data.weather){
+    $("#weather-temp").text(Math.round(data.weather.temperature)+"°C");
+    $("#weather-city-label").text(data.weather.city+", "+data.weather.country);
+    updateWeatherWidget(data.weather);
+    document.getElementById("tk-wx").innerHTML="WEATHER "+data.weather.city+' <span class="val">'+Math.round(data.weather.temperature)+'°C</span>';
+  } else $("#weather-temp").text("N/A");
+  if(data.crypto&&data.crypto.bitcoin){
+    var btc=Math.round(data.crypto.bitcoin.usd).toLocaleString();
+    var chg=(data.crypto.bitcoin.usd_24h_change||0).toFixed(2);
+    $("#btc-price").text("$"+btc);
+    var ce=document.getElementById("btc-change");
+    ce.textContent=(chg>=0?"+":"")+chg+"%";
+    ce.className="metric-delta "+(chg>=0?"pos":"neg");
+    updateCryptoWidget(data.crypto);
+    document.getElementById("tk-btc").innerHTML='BTC <span class="val">$'+btc+'</span>';
+  } else $("#btc-price").text("N/A");
+  if(data.github&&data.github.length>0){$("#github-repos").text(data.github.length);updateGitHubWidget(data.github);}
+  else $("#github-repos").text("N/A");
 }
-
-function updateNewsWidget(articles) {
-    if (!articles || articles.length === 0) {
-        $('#news-widget').html(`
-            <div class="alert alert-info">
-                <i class="fas fa-info-circle"></i> No news articles available
-            </div>
-        `);
-        return;
-    }
-    
-    let html = '<div class="list-group list-group-flush">';
-    articles.slice(0, 5).forEach(function(article) {
-        html += `
-            <a href="${article.url}" target="_blank" class="list-group-item list-group-item-action">
-                <div class="d-flex w-100 justify-content-between align-items-start">
-                    <h6 class="mb-2 fw-bold">${article.title}</h6>
-                </div>
-                <p class="mb-1 small text-muted">
-                    <i class="fas fa-building me-1"></i>${article.source.name}
-                </p>
-            </a>
-        `;
-    });
-    html += '</div>';
-    $('#news-widget').html(html);
+function updateNewsWidget(articles){
+  if(!articles||!articles.length){$("#news-widget").html('<p style="color:var(--text-dim);font-family:var(--font-mono);font-size:11px;padding:20px 0">No articles</p>');return;}
+  var h="";
+  articles.slice(0,5).forEach(function(a){
+    h+='<div class="nfi"><div class="nfi-meta"><span class="nfi-src">'+( a.source?a.source.name:"Unknown")+'</span><span class="nfi-t">'+Utils.timeAgo(a.publishedAt)+'</span></div><div class="nfi-title">'+a.title+'</div><a href="'+a.url+'" target="_blank" class="nfi-link">READ →</a></div>';
+  });
+  $("#news-widget").html(h);
 }
-
-function updateWeatherWidget(weather) {
-    const html = `
-        <div class="text-center py-4">
-            <div class="display-1 fw-bold mb-3">${Math.round(weather.temperature)}°C</div>
-            <h4 class="mb-3">
-                <i class="fas fa-map-marker-alt text-danger me-2"></i>
-                ${weather.city}, ${weather.country}
-            </h4>
-            <p class="lead text-capitalize mb-4">
-                <i class="fas fa-cloud me-2"></i>${weather.description}
-            </p>
-            <div class="row g-3">
-                <div class="col-6">
-                    <div class="p-3 bg-light rounded-3">
-                        <i class="fas fa-tint text-primary fs-4 mb-2"></i>
-                        <p class="mb-0"><strong>${weather.humidity}%</strong></p>
-                        <small class="text-muted">Humidity</small>
-                    </div>
-                </div>
-                <div class="col-6">
-                    <div class="p-3 bg-light rounded-3">
-                        <i class="fas fa-wind text-info fs-4 mb-2"></i>
-                        <p class="mb-0"><strong>${weather.wind_speed} m/s</strong></p>
-                        <small class="text-muted">Wind Speed</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-    $('#weather-widget').html(html);
+function updateWeatherWidget(w){
+  var ic={"01d":"☀️","01n":"🌙","02d":"⛅","02n":"🌙","03d":"☁️","03n":"☁️","04d":"☁️","04n":"☁️","09d":"🌧","09n":"🌧","10d":"🌦","10n":"🌦","11d":"⛈","11n":"⛈","13d":"❄️","13n":"❄️","50d":"🌫","50n":"🌫"};
+  var i=ic[w.icon]||"⛅";
+  $("#weather-widget").html('<div class="wx-row"><div class="wx-ic">'+i+'</div><div class="wx-info"><div class="wx-tmp">'+Math.round(w.temperature)+'<sup>°C</sup></div><div class="wx-cond">'+w.description+'</div><div class="wx-loc">📍 '+w.city+", "+w.country+'</div></div><div class="wx-st"><div class="wx-s">💧 Humidity <span>'+w.humidity+'%</span></div><div class="wx-s">💨 Wind <span>'+w.wind_speed+' m/s</span></div><div class="wx-s">🌡 Feels <span>'+Math.round(w.feels_like)+'°C</span></div></div></div>');
 }
-
-function updateCryptoWidget(crypto) {
-    let html = '<div class="table-responsive"><table class="table table-hover mb-0">';
-    let count = 0;
-    
-    for (const coin in crypto) {
-        if (count >= 5) break;
-        const data = crypto[coin];
-        const change = data.usd_24h_change || 0;
-        const changeClass = change >= 0 ? 'text-success' : 'text-danger';
-        const changeIcon = change >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
-        
-        html += `
-            <tr>
-                <td class="fw-bold text-capitalize">
-                    <i class="fab fa-bitcoin text-warning me-2"></i>${coin}
-                </td>
-                <td class="text-end fw-bold">${data.usd.toLocaleString(undefined, {maximumFractionDigits: 2})}</td>
-                <td class="text-end ${changeClass} fw-bold">
-                    <i class="fas ${changeIcon}"></i> ${Math.abs(change).toFixed(2)}%
-                </td>
-            </tr>
-        `;
-        count++;
-    }
-    
-    html += '</table></div>';
-    $('#crypto-widget').html(html);
+function updateCryptoWidget(crypto){
+  var rows="",count=0;
+  for(var coin in crypto){
+    if(count>=5)break;
+    var d=crypto[coin],chg=(d.usd_24h_change||0).toFixed(2),cc=chg>=0?"pos":"neg",ci=chg>=0?"▲":"▼";
+    rows+='<tr><td><div class="mct-coin"><div style="width:22px;height:22px;border-radius:4px;background:rgba(0,240,255,0.1);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--cyan)">₿</div><div><div class="mct-n">'+coin.charAt(0).toUpperCase()+coin.slice(1)+'</div><div class="mct-s">'+coin.toUpperCase().slice(0,4)+'</div></div></div></td><td class="mct-p">$'+d.usd.toLocaleString(undefined,{maximumFractionDigits:2})+'</td><td class="mct-c '+cc+'">'+ci+" "+Math.abs(chg)+"%</td></tr>";
+    count++;
+  }
+  $("#crypto-widget").html('<table class="mct"><thead><tr><td style="padding:7px 20px;font-family:var(--font-mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);border-bottom:1px solid var(--border)">ASSET</td><td style="padding:7px 20px;font-family:var(--font-mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);border-bottom:1px solid var(--border);text-align:right">PRICE</td><td style="padding:7px 20px;font-family:var(--font-mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);border-bottom:1px solid var(--border);text-align:right">24H</td></tr></thead><tbody>'+rows+"</tbody></table>");
 }
-
-function updateGitHubWidget(repos) {
-    if (!repos || repos.length === 0) {
-        $('#github-widget').html(`
-            <div class="alert alert-info">
-                <i class="fas fa-info-circle"></i> No repositories available
-            </div>
-        `);
-        return;
-    }
-    
-    let html = '<div class="list-group list-group-flush">';
-    repos.slice(0, 5).forEach(function(repo) {
-        const stars = repo.stars || repo.stargazers_count || 0;
-        const name = repo.name || repo.full_name || 'Unknown';
-        const url = repo.url || repo.html_url || '#';
-        const desc = repo.description || 'No description available';
-        const lang = repo.language || 'Unknown';
-        
-        html += `
-            <a href="${url}" target="_blank" class="list-group-item list-group-item-action">
-                <div class="d-flex w-100 justify-content-between align-items-start">
-                    <h6 class="mb-2 fw-bold">
-                        <i class="fab fa-github me-2"></i>${name}
-                    </h6>
-                    <span class="badge bg-warning text-dark">
-                        <i class="fas fa-star"></i> ${stars.toLocaleString()}
-                    </span>
-                </div>
-                <p class="mb-1 small text-muted">${desc}</p>
-                <small class="text-primary"><i class="fas fa-code me-1"></i>${lang}</small>
-            </a>
-        `;
-    });
-    html += '</div>';
-    $('#github-widget').html(html);
+function updateGitHubWidget(repos){
+  if(!repos||!repos.length){$("#github-widget").html('<p style="color:var(--text-dim)">No repos</p>');return;}
+  var h="";
+  repos.slice(0,5).forEach(function(r){
+    var stars=(r.stars||r.stargazers_count||0).toLocaleString(),url=r.url||r.html_url||"#",desc=r.description||"No description",lang=r.language||"Unknown";
+    h+='<div class="mr"><div class="mr-n"><a href="'+url+'" target="_blank">◉ '+( r.name||r.full_name)+'</a></div><div class="mr-d">'+desc+'</div><div class="mr-st"><span>⭐ '+stars+'</span><span>'+lang+'</span></div></div>';
+  });
+  $("#github-widget").html(h);
 }
-
-// Load data on page load
-$(document).ready(function() {
-    loadDashboardData();
-    
-    // Refresh every 5 minutes
-    setInterval(loadDashboardData, 300000);
-    
-    // Show welcome message
-    setTimeout(() => {
-        Utils.showToast('Welcome to API Hub! 🚀', 'success');
-    }, 1000);
+document.getElementById("refresh-all-btn").addEventListener("click",loadDashboardData);
+$(document).ready(function(){
+  loadDashboardData();
+  setInterval(loadDashboardData,300000);
+  setTimeout(function(){showToast("Welcome to API Hub ✓","success");},800);
 });
 </script>
 {% endblock %}

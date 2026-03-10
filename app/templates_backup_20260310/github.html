@@ -1,0 +1,1209 @@
+{% extends "base.html" %}
+
+{% block title %}GitHub Explorer{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Enhanced Header with Gradient -->
+    <div class="row mb-5 text-white text-center animate-in">
+        <div class="col-12">
+            <h1 class="display-3 fw-bold mb-3">
+                <i class="fab fa-github"></i> GitHub Explorer
+            </h1>
+            <p class="lead fs-4">Discover, track, and analyze repositories with ease</p>
+        </div>
+    </div>
+
+    <!-- Enhanced Stats Dashboard -->
+    <div class="row mb-5 g-4">
+        <div class="col-md-3">
+            <div class="stat-card text-center h-100">
+                <div class="stat-icon"><i class="fas fa-star"></i></div>
+                <div class="stat-value" id="total-stars">0</div>
+                <div class="stat-label">Total Stars</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card text-center h-100">
+                <div class="stat-icon"><i class="fas fa-heart"></i></div>
+                <div class="stat-value" id="favorite-count">0</div>
+                <div class="stat-label">Favorites</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card text-center h-100">
+                <div class="stat-icon"><i class="fas fa-code"></i></div>
+                <div class="stat-value" id="language-count">0</div>
+                <div class="stat-label">Languages</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card text-center h-100">
+                <div class="stat-icon"><i class="fas fa-search"></i></div>
+                <div class="stat-value" id="search-count">0</div>
+                <div class="stat-label">Searches</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Search Bar with Quick Actions -->
+    <div class="row mb-5">
+        <div class="col-lg-10 mx-auto">
+            <div class="glass-card p-4">
+                <div class="input-group input-group-lg mb-3">
+                    <span class="input-group-text bg-white border-0 px-4">
+                        <i class="fas fa-search text-primary fs-5"></i>
+                    </span>
+                    <input type="text" class="form-control border-0 fs-5" id="search-input" 
+                           placeholder="Search repositories (e.g., 'react', 'language:python machine learning', 'stars:>1000')">
+                    <button class="btn btn-modern px-5" type="button" id="search-btn">
+                        <i class="fas fa-search me-2"></i> Search
+                    </button>
+                </div>
+                <div class="d-flex flex-wrap gap-2 justify-content-center">
+                    <button class="btn btn-sm btn-outline-primary" onclick="quickSearch('stars:>10000')">
+                        <i class="fas fa-fire"></i> Popular
+                    </button>
+                    <button class="btn btn-sm btn-outline-success" onclick="quickSearch('created:>2024-01-01')">
+                        <i class="fas fa-clock"></i> Recent
+                    </button>
+                    <button class="btn btn-sm btn-outline-info" onclick="quickSearch('language:javascript')">
+                        <i class="fab fa-js"></i> JavaScript
+                    </button>
+                    <button class="btn btn-sm btn-outline-warning" onclick="quickSearch('language:python')">
+                        <i class="fab fa-python"></i> Python
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="quickSearch('topic:machine-learning')">
+                        <i class="fas fa-brain"></i> ML
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Access Cards -->
+    <div class="row mb-5 g-4">
+        <div class="col-md-4">
+            <div class="card bg-gradient-primary text-white h-100 hover-lift" style="cursor: pointer; border-radius: 20px;" onclick="loadTrending('daily')">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-fire fa-4x mb-3"></i>
+                    <h4 class="fw-bold">Trending</h4>
+                    <p class="mb-0 opacity-75">Discover popular repositories</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-gradient-success text-white h-100 hover-lift" style="cursor: pointer; border-radius: 20px;" onclick="switchTab('languages-tab')">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-code fa-4x mb-3"></i>
+                    <h4 class="fw-bold">By Language</h4>
+                    <p class="mb-0 opacity-75">Browse by programming language</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-gradient-info text-white h-100 hover-lift" style="cursor: pointer; border-radius: 20px;" onclick="showAnalyzeModal()">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-chart-bar fa-4x mb-3"></i>
+                    <h4 class="fw-bold">Analyze Repo</h4>
+                    <p class="mb-0 opacity-75">Deep dive into a repository</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Navigation Tabs -->
+    <ul class="nav nav-pills mb-4 justify-content-center p-3" role="tablist" style="border-radius: 20px; background: linear-gradient(135deg, #5a4a8f 0%, #4a3970 100%); backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(90, 74, 143, 0.3);">
+        <li class="nav-item">
+            <button class="nav-link active px-4 py-3" data-bs-toggle="tab" data-bs-target="#trending-tab">
+                <i class="fas fa-fire me-2"></i> Trending
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link px-4 py-3" data-bs-toggle="tab" data-bs-target="#favorites-tab">
+                <i class="fas fa-heart me-2"></i> Favorites <span class="badge bg-danger ms-1" id="fav-badge">0</span>
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link px-4 py-3" data-bs-toggle="tab" data-bs-target="#languages-tab">
+                <i class="fas fa-code me-2"></i> Languages
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link px-4 py-3" data-bs-toggle="tab" data-bs-target="#search-tab">
+                <i class="fas fa-search me-2"></i> Search Results
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link px-4 py-3" data-bs-toggle="tab" data-bs-target="#details-tab">
+                <i class="fas fa-info-circle me-2"></i> Details
+            </button>
+        </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content">
+        <!-- Trending Tab -->
+        <div class="tab-pane fade show active" id="trending-tab">
+            <div class="glass-card">
+                <div class="card-header-gradient">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                        <span class="fs-5"><i class="fas fa-fire me-2"></i> Trending Repositories</span>
+                        <div class="d-flex gap-2">
+                            <select class="form-select border-0" id="trending-period" 
+                                    style="max-width: 150px; background: rgba(255,255,255,0.2); color: white;">
+                                <option value="daily">Today</option>
+                                <option value="weekly">This Week</option>
+                                <option value="monthly">This Month</option>
+                            </select>
+                            <button class="btn btn-light btn-sm" onclick="loadTrending($('#trending-period').val())">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row" id="trending-container">
+                        <div class="col-12 text-center py-5">
+                            <div class="spinner-border text-primary"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Favorites Tab -->
+        <div class="tab-pane fade" id="favorites-tab">
+            <div class="glass-card">
+                <div class="card-header-gradient">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                        <span class="fs-5"><i class="fas fa-heart me-2"></i> My Favorite Repositories</span>
+                        <div class="d-flex gap-2">
+                            <select class="form-select border-0" id="favorite-sort" 
+                                    style="max-width: 150px; background: rgba(255,255,255,0.2); color: white;">
+                                <option value="recent">Most Recent</option>
+                                <option value="stars">Most Stars</option>
+                                <option value="name">Name (A-Z)</option>
+                            </select>
+                            <button class="btn btn-light btn-sm" id="clear-favorites-btn">
+                                <i class="fas fa-trash me-1"></i>Clear All
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-4" id="favorites-container">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        You haven't saved any repositories yet. Click the ❤️ icon on any repository to add it to favorites!
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Languages Tab -->
+        <div class="tab-pane fade" id="languages-tab">
+            <div class="glass-card">
+                <div class="card-header-gradient">
+                    <span class="fs-5"><i class="fas fa-code me-2"></i> Browse by Programming Language</span>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-4" id="languages-grid">
+                        <!-- JavaScript -->
+                        <div class="col-md-3 col-sm-6">
+                            <button class="btn btn-outline-warning w-100 py-4 hover-lift" onclick="searchByLanguage('javascript')">
+                                <i class="fab fa-js fa-3x mb-2"></i>
+                                <br><strong class="fs-5">JavaScript</strong>
+                            </button>
+                        </div>
+                        <!-- Python -->
+                        <div class="col-md-3 col-sm-6">
+                            <button class="btn btn-outline-primary w-100 py-4 hover-lift" onclick="searchByLanguage('python')">
+                                <i class="fab fa-python fa-3x mb-2"></i>
+                                <br><strong class="fs-5">Python</strong>
+                            </button>
+                        </div>
+                        <!-- Java -->
+                        <div class="col-md-3 col-sm-6">
+                            <button class="btn btn-outline-danger w-100 py-4 hover-lift" onclick="searchByLanguage('java')">
+                                <i class="fab fa-java fa-3x mb-2"></i>
+                                <br><strong class="fs-5">Java</strong>
+                            </button>
+                        </div>
+                        <!-- TypeScript -->
+                        <div class="col-md-3 col-sm-6">
+                            <button class="btn btn-outline-info w-100 py-4 hover-lift" onclick="searchByLanguage('typescript')">
+                                <i class="fas fa-code fa-3x mb-2"></i>
+                                <br><strong class="fs-5">TypeScript</strong>
+                            </button>
+                        </div>
+                        <!-- Go -->
+                        <div class="col-md-3 col-sm-6">
+                            <button class="btn btn-outline-success w-100 py-4 hover-lift" onclick="searchByLanguage('go')">
+                                <i class="fas fa-gopuram fa-3x mb-2"></i>
+                                <br><strong class="fs-5">Go</strong>
+                            </button>
+                        </div>
+                        <!-- Rust -->
+                        <div class="col-md-3 col-sm-6">
+                            <button class="btn btn-outline-secondary w-100 py-4 hover-lift" onclick="searchByLanguage('rust')">
+                                <i class="fas fa-gear fa-3x mb-2"></i>
+                                <br><strong class="fs-5">Rust</strong>
+                            </button>
+                        </div>
+                        <!-- C++ -->
+                        <div class="col-md-3 col-sm-6">
+                            <button class="btn btn-outline-primary w-100 py-4 hover-lift" onclick="searchByLanguage('cpp')">
+                                <i class="fas fa-code fa-3x mb-2"></i>
+                                <br><strong class="fs-5">C++</strong>
+                            </button>
+                        </div>
+                        <!-- Ruby -->
+                        <div class="col-md-3 col-sm-6">
+                            <button class="btn btn-outline-danger w-100 py-4 hover-lift" onclick="searchByLanguage('ruby')">
+                                <i class="fas fa-gem fa-3x mb-2"></i>
+                                <br><strong class="fs-5">Ruby</strong>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Results Tab -->
+        <div class="tab-pane fade" id="search-tab">
+            <div class="glass-card">
+                <div class="card-header-gradient">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="fs-5"><i class="fas fa-search me-2"></i> Search Results</span>
+                        <span class="badge bg-light text-dark" id="search-result-count">0 results</span>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row" id="search-results-container">
+                        <div class="col-12">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Use the search bar above to find repositories
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Details Tab -->
+        <div class="tab-pane fade" id="details-tab">
+            <div class="glass-card">
+                <div class="card-header-gradient">
+                    <span class="fs-5"><i class="fas fa-info-circle me-2"></i> Repository Details</span>
+                </div>
+                <div class="card-body p-4" id="details-container">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Click "View Details" on any repository to see detailed information
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Analyze Modal -->
+<div class="modal fade" id="analyzeModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="border-radius: 20px; border: none;">
+            <div class="modal-header bg-gradient-info text-white" style="border-radius: 20px 20px 0 0;">
+                <h5 class="modal-title"><i class="fas fa-chart-bar me-2"></i> Analyze Repository</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Repository (owner/repo)</label>
+                    <input type="text" class="form-control form-control-lg" id="analyze-input" 
+                           placeholder="e.g., facebook/react, microsoft/vscode">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Enter the full repository path to view detailed analytics
+                    </small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-primary" onclick="analyzeRepo()">
+                    <i class="fas fa-search me-2"></i>Analyze
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.bg-gradient-success {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+}
+
+.bg-gradient-info {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.hover-lift {
+    transition: all 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.nav-pills .nav-link {
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    color: #e8e6f0;
+    font-weight: 500;
+    border: 2px solid transparent;
+}
+
+.nav-pills .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.nav-pills .nav-link.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.animate-in {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.repo-card {
+    transition: all 0.3s ease;
+    border-radius: 15px;
+}
+
+.repo-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.fav-btn {
+    transition: all 0.2s ease;
+}
+
+.fav-btn:hover {
+    transform: scale(1.1);
+}
+
+.fav-btn.is-favorite {
+    background-color: #dc3545 !important;
+    color: white !important;
+    border-color: #dc3545 !important;
+}
+
+.fav-btn.is-favorite i {
+    color: white !important;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const FAVORITES_KEY = 'github_favorites';
+const SEARCH_COUNT_KEY = 'github_search_count';
+let searchCounter = 0;
+
+// ============================================
+// FAVORITES MANAGEMENT
+// ============================================
+
+/**
+ * Retrieves all saved favorites from localStorage
+ * @returns {Array} Array of favorite repository objects
+ */
+function getFavorites() {
+    try {
+        const saved = localStorage.getItem(FAVORITES_KEY);
+        const favorites = saved ? JSON.parse(saved) : [];
+        console.log('Retrieved favorites from storage:', favorites.length, 'items');
+        return favorites;
+    } catch (error) {
+        console.error('Error reading favorites:', error);
+        return [];
+    }
+}
+
+/**
+ * Saves favorites array to localStorage and updates UI stats
+ * @param {Array} favorites - Array of favorite repository objects
+ */
+function saveFavorites(favorites) {
+    try {
+        localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+        console.log('Saved favorites to storage:', favorites.length, 'items');
+        console.log('Saved favorites:', favorites.map(f => ({id: f.id, name: f.full_name})));
+        updateFavoriteStats();
+    } catch (error) {
+        console.error('Error saving favorites:', error);
+        Utils.showToast('Error saving favorites', 'danger');
+    }
+}
+
+/**
+ * Checks if a repository is in the favorites list
+ * @param {number|string} repoId - The repository ID to check
+ * @returns {boolean} True if repository is favorited
+ */
+function isFavorite(repoId) {
+    const favorites = getFavorites();
+    const numericId = parseInt(repoId);
+    const found = favorites.some(fav => parseInt(fav.id) === numericId);
+    console.log(`Checking if repo ${numericId} is favorite:`, found);
+    return found;
+}
+
+/**
+ * Toggles a repository's favorite status (add or remove)
+ * @param {Object} repo - Repository object containing id, name, description, etc.
+ */
+function toggleFavorite(repo) {
+    // Get current favorites from storage
+    let favorites = getFavorites();
+    const repoId = parseInt(repo.id); // Ensure ID is numeric for comparison
+    
+    // Find the repository in favorites by matching IDs
+    const index = favorites.findIndex(fav => parseInt(fav.id) === repoId);
+    
+    console.log('========================================');
+    console.log('TOGGLE FAVORITE CALLED');
+    console.log('Repository:', repo.full_name);
+    console.log('Repository ID:', repoId);
+    console.log('Current favorites count:', favorites.length);
+    console.log('Found at index:', index);
+    console.log('Current favorite IDs:', favorites.map(f => f.id));
+    console.log('========================================');
+    
+    if (index > -1) {
+        // Repository is already favorited - REMOVE it
+        const removed = favorites.splice(index, 1);
+        console.log('REMOVED from favorites:', removed[0].full_name);
+        console.log('New favorites count:', favorites.length);
+        Utils.showToast('Removed from favorites', 'info');
+    } else {
+        // Repository is not favorited - ADD it
+        const favoriteRepo = {
+            id: repoId,
+            name: repo.name || repo.full_name.split('/')[1],
+            full_name: repo.full_name,
+            description: repo.description || 'No description available',
+            html_url: repo.html_url || repo.url,
+            language: repo.language || 'Unknown',
+            stars: parseInt(repo.stargazers_count || repo.stars || 0),
+            forks: parseInt(repo.forks_count || repo.forks || 0),
+            owner: repo.owner || { login: repo.full_name.split('/')[0] },
+            saved_at: new Date().toISOString()
+        };
+        
+        favorites.push(favoriteRepo);
+        console.log('ADDED to favorites:', favoriteRepo.full_name);
+        console.log('New favorites count:', favorites.length);
+        console.log('New favorite object:', favoriteRepo);
+        Utils.showToast('Added to favorites!', 'success');
+    }
+    
+    // Save updated favorites to localStorage
+    saveFavorites(favorites);
+    
+    // Update all UI buttons for this repository
+    updateAllFavoriteButtons(repoId);
+    
+    // If we're viewing the favorites tab, refresh it to show changes
+    if ($('#favorites-tab').hasClass('active')) {
+        displayFavorites();
+    }
+}
+
+/**
+ * Updates all favorite buttons across the page for a specific repository
+ * @param {number|string} repoId - The repository ID to update buttons for
+ */
+function updateAllFavoriteButtons(repoId) {
+    const numericId = parseInt(repoId);
+    const isFav = isFavorite(numericId);
+    
+    console.log('Updating all buttons for repo ID:', numericId);
+    console.log('Is favorite:', isFav);
+    
+    // Find all buttons with this repo ID and update their state
+    $(`.fav-btn[data-repo-id="${numericId}"]`).each(function() {
+        const $btn = $(this);
+        const $icon = $btn.find('i');
+        
+        if (isFav) {
+            // Style as favorited: solid heart, red background
+            $btn.addClass('is-favorite');
+            $icon.removeClass('far').addClass('fas');
+            console.log('Button styled as favorite for ID:', numericId);
+        } else {
+            // Style as not favorited: outline heart, light background
+            $btn.removeClass('is-favorite');
+            $icon.removeClass('fas').addClass('far');
+            console.log('Button styled as non-favorite for ID:', numericId);
+        }
+    });
+}
+
+/**
+ * Updates the statistics displayed in the stats cards
+ * Calculates total stars, favorite count, and language count
+ */
+function updateFavoriteStats() {
+    const favorites = getFavorites();
+    const count = favorites.length;
+    
+    // Update favorite count in stats card and badge
+    $('#favorite-count').text(count);
+    $('#fav-badge').text(count);
+    
+    // Calculate total stars across all favorites
+    const totalStars = favorites.reduce((sum, repo) => sum + (repo.stars || 0), 0);
+    $('#total-stars').text(totalStars.toLocaleString());
+    
+    // Count unique languages (excluding 'Unknown')
+    const languages = new Set(favorites.map(r => r.language).filter(l => l && l !== 'Unknown'));
+    $('#language-count').text(languages.size);
+    
+    console.log('Stats updated - Favorites:', count, 'Stars:', totalStars, 'Languages:', languages.size);
+}
+
+// ============================================
+// DISPLAY FUNCTIONS
+// ============================================
+
+function createRepoCard(repo, showDetailsButton = true) {
+    const language = repo.language || 'Unknown';
+    const description = repo.description || 'No description available';
+    const stars = repo.stargazers_count || repo.stars || 0;
+    const forks = repo.forks_count || repo.forks || 0;
+    const fullName = repo.full_name || repo.name;
+    const url = repo.html_url || repo.url;
+    const repoId = repo.id;
+    
+    const isFav = isFavorite(repoId);
+    const favClass = isFav ? 'is-favorite' : '';
+    const heartClass = isFav ? 'fas' : 'far';
+    
+    // Create a clean repo object for the onclick handler
+    const cleanRepo = {
+        id: repoId,
+        name: repo.name || fullName.split('/')[1],
+        full_name: fullName,
+        description: description,
+        html_url: url,
+        language: language,
+        stargazers_count: stars,
+        forks_count: forks,
+        owner: repo.owner || { login: fullName.split('/')[0] }
+    };
+    
+    const ownerLogin = repo.owner ? repo.owner.login : fullName.split('/')[0];
+    const repoName = repo.name || fullName.split('/')[1];
+    
+    return `
+        <div class="col-lg-6 mb-4 animate-in">
+            <div class="card border-0 h-100 shadow-sm repo-card">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h5 class="card-title mb-0 flex-grow-1">
+                            <i class="fab fa-github me-2"></i>
+                            <a href="${url}" target="_blank" class="text-decoration-none">
+                                ${fullName}
+                            </a>
+                        </h5>
+                        <button class="btn btn-sm btn-light fav-btn ${favClass}" data-repo-id="${repoId}"
+                                onclick='handleFavoriteClick(${JSON.stringify(cleanRepo)})'>
+                            <i class="${heartClass} fa-heart"></i>
+                        </button>
+                    </div>
+                    <p class="card-text text-muted mb-3" style="min-height: 60px;">${description}</p>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <span class="badge bg-primary rounded-pill px-3 py-2">${language}</span>
+                        </div>
+                        <div class="text-end">
+                            <small class="text-muted">
+                                <i class="fas fa-star text-warning"></i> ${stars.toLocaleString()}
+                                <i class="fas fa-code-branch ms-2"></i> ${forks.toLocaleString()}
+                            </small>
+                        </div>
+                    </div>
+                    ${showDetailsButton ? `
+                    <button class="btn btn-sm btn-outline-primary w-100" onclick="viewRepoDetails('${ownerLogin}', '${repoName}')">
+                        <i class="fas fa-info-circle me-2"></i>View Details
+                    </button>
+                    ` : ''}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function handleFavoriteClick(repoId) {
+    console.log('Favorite clicked for ID:', repoId);
+    
+    // Get the button that was clicked
+    const $button = $(`.fav-btn[data-repo-id="${repoId}"]`).first();
+    const repoInfoJson = $button.attr('data-repo-info');
+    
+    if (!repoInfoJson) {
+        console.error('No repo info found in button data');
+        return;
+    }
+    
+    try {
+        const repo = JSON.parse(repoInfoJson.replace(/&quot;/g, '"'));
+        console.log('Parsed repo data:', repo);
+        toggleFavorite(repo);
+    } catch (error) {
+        console.error('Error parsing repo data:', error);
+        Utils.showToast('Error toggling favorite', 'danger');
+    }
+}
+
+/**
+ * Displays a list of repositories in a container
+ * @param {Array} repos - Array of repository objects to display
+ * @param {string} containerId - The ID of the container element to display repos in
+ */
+function displayRepositories(repos, containerId) {
+    const container = $(`#${containerId}`);
+    
+    console.log(`Displaying ${repos ? repos.length : 0} repositories in #${containerId}`);
+    
+    // Handle empty results
+    if (!repos || repos.length === 0) {
+        container.html(`
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    No repositories found
+                </div>
+            </div>
+        `);
+        return;
+    }
+    
+    // Update search result count if displaying in search container
+    if (containerId === 'search-results-container') {
+        $('#search-result-count').text(`${repos.length} results`);
+    }
+    
+    // Generate HTML for each repository card
+    let html = '';
+    repos.forEach((repo, index) => {
+        console.log(`Creating card ${index + 1}/${repos.length}: ${repo.full_name} (ID: ${repo.id})`);
+        html += createRepoCard(repo, true);
+    });
+    
+    container.html(html);
+    console.log(`Successfully displayed ${repos.length} repository cards`);
+}
+
+/**
+ * Displays the favorites tab with saved repositories
+ * Includes sorting functionality
+ */
+function displayFavorites() {
+    const favorites = getFavorites();
+    const container = $('#favorites-container');
+    const sortBy = $('#favorite-sort').val() || 'recent';
+    
+    console.log('Displaying favorites tab. Count:', favorites.length, 'Sort by:', sortBy);
+    
+    // Handle empty favorites
+    if (favorites.length === 0) {
+        container.html(`
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                You haven't saved any repositories yet. Click the ❤️ icon on any repository to add it to favorites!
+            </div>
+        `);
+        return;
+    }
+    
+    // Sort favorites based on selected criteria
+    let sortedFavorites = [...favorites];
+    if (sortBy === 'recent') {
+        sortedFavorites.sort((a, b) => new Date(b.saved_at) - new Date(a.saved_at));
+        console.log('Sorted by most recent');
+    } else if (sortBy === 'stars') {
+        sortedFavorites.sort((a, b) => (b.stars || 0) - (a.stars || 0));
+        console.log('Sorted by stars');
+    } else if (sortBy === 'name') {
+        sortedFavorites.sort((a, b) => a.full_name.localeCompare(b.full_name));
+        console.log('Sorted alphabetically');
+    }
+    
+    // Build HTML with timestamp for each favorite
+    let html = '<div class="row">';
+    sortedFavorites.forEach((repo, index) => {
+        console.log(`Displaying favorite ${index + 1}:`, repo.full_name, 'ID:', repo.id);
+        const card = createRepoCard(repo, true);
+        // Add saved timestamp to the card
+        const withTimestamp = card.replace(
+            '</div>\n                </div>\n            </div>',
+            `<div class="mt-2 pt-2 border-top">
+                <small class="text-muted">
+                    <i class="fas fa-clock me-1"></i>
+                    Saved ${Utils.timeAgo(repo.saved_at)}
+                </small>
+            </div>
+                        </div>
+                    </div>
+                </div>`
+        );
+        html += withTimestamp;
+    });
+    html += '</div>';
+    
+    container.html(html);
+    console.log('Favorites tab displayed successfully');
+}
+
+// ============================================
+// API CALLS
+// ============================================
+
+function loadTrending(period = 'daily') {
+    const container = $('#trending-container');
+    container.html('<div class="col-12 text-center py-5"><div class="spinner-border text-primary"></div></div>');
+    
+    fetch(`/github/api/trending?since=${period}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.repositories) {
+                displayRepositories(data.repositories, 'trending-container');
+            } else {
+                container.html(`
+                    <div class="col-12">
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Error loading trending repositories
+                        </div>
+                    </div>
+                `);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            container.html(`
+                <div class="col-12">
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Error loading trending repositories
+                    </div>
+                </div>
+            `);
+        });
+}
+
+function searchRepositories() {
+    const query = $('#search-input').val().trim();
+    if (!query) {
+        Utils.showToast('Please enter a search query', 'warning');
+        return;
+    }
+    
+    searchCounter++;
+    $('#search-count').text(searchCounter);
+    localStorage.setItem(SEARCH_COUNT_KEY, searchCounter);
+    
+    const container = $('#search-results-container');
+    container.html('<div class="col-12 text-center py-5"><div class="spinner-border text-primary"></div></div>');
+    
+    switchTab('search-tab');
+    
+    fetch(`/github/api/search/repositories?q=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.results && data.results.length > 0) {
+                displayRepositories(data.results, 'search-results-container');
+            } else {
+                container.html(`
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            No repositories found for "${query}"
+                        </div>
+                    </div>
+                `);
+                $('#search-result-count').text('0 results');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            container.html(`
+                <div class="col-12">
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Error searching repositories
+                    </div>
+                </div>
+            `);
+        });
+}
+
+function viewRepoDetails(owner, repo) {
+    const container = $('#details-container');
+    container.html('<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>');
+    
+    switchTab('details-tab');
+    
+    fetch(`/github/api/repo/${owner}/${repo}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.repository) {
+                displayRepoDetails(data.repository);
+            } else {
+                container.html(`
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Error loading repository details
+                    </div>
+                `);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            container.html(`
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Error loading repository details
+                </div>
+            `);
+        });
+}
+
+function displayRepoDetails(repo) {
+    const repoId = parseInt(repo.id);
+    const isFav = isFavorite(repoId);
+    const favClass = isFav ? 'is-favorite' : '';
+    const heartClass = isFav ? 'fas' : 'far';
+    
+    const cleanRepo = {
+        id: repoId,
+        name: repo.name,
+        full_name: repo.full_name,
+        description: repo.description,
+        html_url: repo.html_url,
+        language: repo.language,
+        stargazers_count: repo.stargazers_count,
+        forks_count: repo.forks_count,
+        owner: repo.owner
+    };
+    
+    const repoJson = JSON.stringify(cleanRepo);
+    
+    const html = `
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-gradient-info text-white py-4" style="border-radius: 20px 20px 0 0;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">
+                        <i class="fab fa-github me-2"></i> ${repo.full_name}
+                    </h3>
+                    <button class="btn btn-light fav-btn ${favClass}" 
+                            data-repo-id="${repoId}"
+                            data-repo-info='${repoJson}'>
+                        <i class="${heartClass} fa-heart"></i> ${isFav ? 'Saved' : 'Save'}
+                    </button>
+                </div>
+            </div>
+            <div class="card-body p-4">
+                <p class="lead mb-4">${repo.description || 'No description available'}</p>
+                <hr class="my-4">
+                
+                <!-- Stats Grid -->
+                <div class="row g-4 mb-4 text-center">
+                    <div class="col-md-3 col-6">
+                        <div class="p-3 bg-light rounded-3">
+                            <h3 class="text-warning mb-1">${(repo.stargazers_count || 0).toLocaleString()}</h3>
+                            <small class="text-muted"><i class="fas fa-star"></i> Stars</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="p-3 bg-light rounded-3">
+                            <h3 class="text-primary mb-1">${(repo.forks_count || 0).toLocaleString()}</h3>
+                            <small class="text-muted"><i class="fas fa-code-branch"></i> Forks</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="p-3 bg-light rounded-3">
+                            <h3 class="text-info mb-1">${(repo.watchers_count || 0).toLocaleString()}</h3>
+                            <small class="text-muted"><i class="fas fa-eye"></i> Watchers</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="p-3 bg-light rounded-3">
+                            <h3 class="text-danger mb-1">${(repo.open_issues_count || 0).toLocaleString()}</h3>
+                            <small class="text-muted"><i class="fas fa-exclamation-circle"></i> Issues</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Details Grid -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <strong><i class="fas fa-code me-2 text-primary"></i>Language:</strong>
+                            <span class="ms-2">${repo.language || 'Not specified'}</span>
+                        </div>
+                        <div class="mb-3">
+                            <strong><i class="fas fa-balance-scale me-2 text-success"></i>License:</strong>
+                            <span class="ms-2">${repo.license ? repo.license.name : 'None'}</span>
+                        </div>
+                        <div class="mb-3">
+                            <strong><i class="fas fa-calendar-plus me-2 text-info"></i>Created:</strong>
+                            <span class="ms-2">${Utils.formatDate(repo.created_at)}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <strong><i class="fas fa-sync me-2 text-warning"></i>Updated:</strong>
+                            <span class="ms-2">${Utils.formatDate(repo.updated_at)}</span>
+                        </div>
+                        <div class="mb-3">
+                            <strong><i class="fas fa-hdd me-2 text-secondary"></i>Size:</strong>
+                            <span class="ms-2">${(repo.size || 0).toLocaleString()} KB</span>
+                        </div>
+                        <div class="mb-3">
+                            <strong><i class="fas fa-code-branch me-2 text-primary"></i>Default Branch:</strong>
+                            <span class="ms-2">${repo.default_branch || 'main'}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Topics -->
+                ${repo.topics && repo.topics.length > 0 ? `
+                <div class="mb-4">
+                    <strong class="d-block mb-2"><i class="fas fa-tags me-2"></i>Topics:</strong>
+                    <div class="d-flex flex-wrap gap-2">
+                        ${repo.topics.map(topic => `<span class="badge bg-secondary rounded-pill px-3 py-2">${topic}</span>`).join('')}
+                    </div>
+                </div>
+                ` : ''}
+                
+                <hr class="my-4">
+                
+                <!-- Action Buttons -->
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="${repo.html_url}" target="_blank" class="btn btn-primary btn-lg">
+                        <i class="fas fa-external-link-alt me-2"></i> View on GitHub
+                    </a>
+                    ${repo.homepage ? `
+                    <a href="${repo.homepage}" target="_blank" class="btn btn-success btn-lg">
+                        <i class="fas fa-home me-2"></i> Homepage
+                    </a>
+                    ` : ''}
+                    <button class="btn btn-secondary btn-lg" onclick="switchTab('search-tab')">
+                        <i class="fas fa-arrow-left me-2"></i> Back to Results
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    $('#details-container').html(html);
+}
+
+// ============================================
+// UTILITY FUNCTIONS
+// ============================================
+
+function quickSearch(query) {
+    $('#search-input').val(query);
+    searchRepositories();
+}
+
+function searchByLanguage(language) {
+    $('#search-input').val(`language:${language}`);
+    searchRepositories();
+}
+
+function showAnalyzeModal() {
+    const modal = new bootstrap.Modal(document.getElementById('analyzeModal'));
+    modal.show();
+}
+
+function analyzeRepo() {
+    const input = $('#analyze-input').val().trim();
+    if (!input || !input.includes('/')) {
+        Utils.showToast('Please enter repository in format: owner/repo', 'warning');
+        return;
+    }
+
+    const [owner, repo] = input.split('/');
+    viewRepoDetails(owner, repo);
+    bootstrap.Modal.getInstance(document.getElementById('analyzeModal')).hide();
+}
+
+function switchTab(tabId) {
+    $(`button[data-bs-target="#${tabId}"]`).tab('show');
+}
+
+// ============================================
+// EVENT HANDLERS
+// ============================================
+
+/**
+ * Clears all favorites after user confirmation
+ */
+$('#clear-favorites-btn').click(function() {
+    if (!confirm('Are you sure you want to remove all favorite repositories?')) return;
+    
+    localStorage.removeItem(FAVORITES_KEY);
+    updateFavoriteStats();
+    displayFavorites();
+    
+    // Update all favorite buttons on the page to non-favorite state
+    $('.fav-btn').each(function() {
+        $(this).removeClass('is-favorite');
+        $(this).find('i').removeClass('fas').addClass('far');
+    });
+    
+    Utils.showToast('All favorites cleared', 'info');
+});
+
+// Trending period dropdown change
+$('#trending-period').change(function() {
+    loadTrending($(this).val());
+});
+
+// Favorite sort dropdown change
+$('#favorite-sort').change(function() {
+    displayFavorites();
+});
+
+// Search button click
+$('#search-btn').click(searchRepositories);
+
+// Enter key in search input
+$('#search-input').keypress(function(e) {
+    if (e.key === 'Enter') {
+        searchRepositories();
+    }
+});
+
+// Enter key in analyze modal input
+$('#analyze-input').keypress(function(e) {
+    if (e.key === 'Enter') {
+        analyzeRepo();
+    }
+});
+
+// Tab change events - load data when tabs are shown
+$('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+    const target = $(e.target).attr('data-bs-target');
+    
+    if (target === '#favorites-tab') {
+        displayFavorites();
+    } else if (target === '#trending-tab') {
+        // Only reload if container is empty or showing error
+        if ($('#trending-container .spinner-border').length || $('#trending-container .alert').length) {
+            loadTrending('daily');
+        }
+    }
+});
+
+// Attach click handler to favorite buttons using event delegation
+// This ensures dynamically added buttons also work
+// Using 'mousedown' instead of 'click' to catch the event earlier
+$(document).on('click mousedown', '.fav-btn', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    
+    // Prevent double-firing for both mousedown and click
+    if (e.type === 'mousedown' && e.which !== 1) {
+        return; // Only handle left click
+    }
+    
+    const $button = $(this);
+    const repoId = $button.attr('data-repo-id');
+    const repoInfoJson = $button.attr('data-repo-info');
+    
+    console.log('========================================');
+    console.log('FAVORITE BUTTON CLICKED (Event Delegation)');
+    console.log('Event type:', e.type);
+    console.log('Button element:', $button[0]);
+    console.log('Repo ID:', repoId);
+    console.log('Has repo info:', !!repoInfoJson);
+    
+    if (!repoId || !repoInfoJson) {
+        console.error('ERROR: Missing data attributes on button');
+        console.log('Button HTML:', $button[0].outerHTML);
+        console.log('All button attributes:', $button[0].attributes);
+        Utils.showToast('Error: Missing repository data', 'danger');
+        return false;
+    }
+    
+    try {
+        // Decode and parse the repo data
+        const repo = JSON.parse(repoInfoJson);
+        console.log('Successfully parsed repo:', repo.full_name);
+        console.log('Full repo object:', repo);
+        
+        // Toggle the favorite
+        toggleFavorite(repo);
+        
+        // Prevent any further event propagation
+        return false;
+    } catch (error) {
+        console.error('ERROR parsing repo data:', error);
+        console.error('Raw JSON:', repoInfoJson);
+        Utils.showToast('Error toggling favorite', 'danger');
+        return false;
+    }
+    
+    console.log('========================================');
+});
+
+// ============================================
+// INITIALIZATION
+// ============================================
+
+$(document).ready(function() {
+    // Load saved search count
+    const savedSearchCount = localStorage.getItem(SEARCH_COUNT_KEY);
+    if (savedSearchCount) {
+        searchCounter = parseInt(savedSearchCount);
+        $('#search-count').text(searchCounter);
+    }
+    
+    // Update favorite stats
+    updateFavoriteStats();
+    
+    // Load trending repositories
+    loadTrending('daily');
+});
+</script>
+{% endblock %}

@@ -1,0 +1,660 @@
+{% extends "base.html" %}
+
+{% block title %}Cryptocurrency{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Header -->
+    <div class="row mb-4 text-white text-center animate-in">
+        <div class="col-12">
+            <h1 class="display-4 fw-bold">
+                <i class="fab fa-bitcoin"></i> Crypto Tracker
+            </h1>
+            <p class="lead">Live prices, portfolio management & alerts</p>
+        </div>
+    </div>
+
+    <!-- Portfolio Summary -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stat-card text-center">
+                <div class="stat-icon"><i class="fas fa-wallet"></i></div>
+                <div class="stat-value" id="portfolio-value">$0.00</div>
+                <div class="stat-label">Portfolio Value</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card text-center">
+                <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+                <div class="stat-value" id="portfolio-change">0%</div>
+                <div class="stat-label">24h Change</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card text-center">
+                <div class="stat-icon"><i class="fas fa-coins"></i></div>
+                <div class="stat-value" id="portfolio-coins">0</div>
+                <div class="stat-label">Holdings</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card text-center">
+                <div class="stat-icon"><i class="fas fa-bell"></i></div>
+                <div class="stat-value" id="active-alerts">0</div>
+                <div class="stat-label">Price Alerts</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs with Dark Purple Background -->
+    <div class="mb-4 d-flex justify-content-center">
+        <div style="background: linear-gradient(135deg, #667eea, #764ba2); padding: 8px; border-radius: 50px; display: inline-block; box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);">
+            <ul class="nav nav-pills mb-0" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active px-4 py-3 fw-bold" data-bs-toggle="tab" data-bs-target="#prices-tab"
+                            style="border-radius: 50px; transition: all 0.3s;">
+                        <i class="fas fa-chart-line me-2"></i> Live Prices
+                    </button>
+                </li>
+                <li class="nav-item ms-2">
+                    <button class="nav-link px-4 py-3 fw-bold" data-bs-toggle="tab" data-bs-target="#portfolio-tab"
+                            style="border-radius: 50px; transition: all 0.3s;">
+                        <i class="fas fa-wallet me-2"></i> My Portfolio
+                    </button>
+                </li>
+                <li class="nav-item ms-2">
+                    <button class="nav-link px-4 py-3 fw-bold" data-bs-toggle="tab" data-bs-target="#trending-tab"
+                            style="border-radius: 50px; transition: all 0.3s;">
+                        <i class="fas fa-fire me-2"></i> Trending
+                    </button>
+                </li>
+                <li class="nav-item ms-2">
+                    <button class="nav-link px-4 py-3 fw-bold" data-bs-toggle="tab" data-bs-target="#alerts-tab"
+                            style="border-radius: 50px; transition: all 0.3s;">
+                        <i class="fas fa-bell me-2"></i> Alerts
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+    
+    <style>
+        .nav-pills .nav-link {
+            background: transparent;
+            color: white !important;
+            border: 2px solid transparent;
+        }
+        .nav-pills .nav-link:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+        .nav-pills .nav-link.active {
+            background: white !important;
+            color: #667eea !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+
+    <!-- Tab Content -->
+    <div class="tab-content">
+        <!-- Prices Tab -->
+        <div class="tab-pane fade show active" id="prices-tab">
+            <div class="glass-card">
+                <div class="card-header-gradient">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-chart-line"></i> Top 50 Cryptocurrencies</span>
+                        <div class="input-group" style="max-width: 300px;">
+                            <input type="text" class="form-control form-control-sm border-0" 
+                                   id="coin-search" placeholder="Search coin...">
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive" id="prices-container">
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-primary"></div>
+                            <p class="mt-3 text-muted">Loading cryptocurrency prices...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Portfolio Tab -->
+        <div class="tab-pane fade" id="portfolio-tab">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <div class="glass-card">
+                        <div class="card-header-gradient">
+                            <i class="fas fa-plus-circle"></i> Add to Portfolio
+                        </div>
+                        <div class="card-body">
+                            <form id="add-holding-form">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Coin ID</label>
+                                    <input type="text" class="form-control" id="holding-coin-id" 
+                                           placeholder="e.g., bitcoin" required>
+                                    <small class="text-muted">Check coin ID from prices table</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Amount</label>
+                                    <input type="number" class="form-control" id="holding-amount" 
+                                           step="0.00000001" placeholder="0.00" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Purchase Price (USD)</label>
+                                    <input type="number" class="form-control" id="holding-price" 
+                                           step="0.01" placeholder="0.00">
+                                    <small class="text-muted">Optional - for profit/loss calculation</small>
+                                </div>
+                                <button type="submit" class="btn btn-modern w-100">
+                                    <i class="fas fa-plus me-2"></i>Add to Portfolio
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8">
+                    <div class="glass-card">
+                        <div class="card-header-gradient">
+                            <i class="fas fa-wallet"></i> My Holdings
+                        </div>
+                        <div class="card-body" id="portfolio-container">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Add your first cryptocurrency to start tracking your portfolio
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trending Tab -->
+        <div class="tab-pane fade" id="trending-tab">
+            <div class="glass-card">
+                <div class="card-header-gradient">
+                    <i class="fas fa-fire"></i> Trending Cryptocurrencies
+                </div>
+                <div class="card-body">
+                    <div class="row" id="trending-container">
+                        <div class="col-12 text-center py-5">
+                            <div class="spinner-border text-warning"></div>
+                            <p class="mt-3 text-muted">Loading trending coins...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alerts Tab -->
+        <div class="tab-pane fade" id="alerts-tab">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <div class="glass-card">
+                        <div class="card-header-gradient">
+                            <i class="fas fa-bell-plus"></i> Create Price Alert
+                        </div>
+                        <div class="card-body">
+                            <form id="add-alert-form">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Coin ID</label>
+                                    <input type="text" class="form-control" id="alert-coin-id" 
+                                           placeholder="e.g., bitcoin" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Target Price (USD)</label>
+                                    <input type="number" class="form-control" id="alert-price" 
+                                           step="0.01" placeholder="0.00" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Condition</label>
+                                    <select class="form-select" id="alert-condition" required>
+                                        <option value="above">Price goes above</option>
+                                        <option value="below">Price goes below</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-modern w-100">
+                                    <i class="fas fa-bell me-2"></i>Create Alert
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8">
+                    <div class="glass-card">
+                        <div class="card-header-gradient">
+                            <i class="fas fa-list"></i> Active Alerts
+                        </div>
+                        <div class="card-body" id="alerts-container">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Create your first price alert to get notified when prices hit your targets
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const PORTFOLIO_KEY = 'crypto_portfolio';
+const ALERTS_KEY = 'crypto_alerts';
+
+// Get portfolio from localStorage
+function getPortfolio() {
+    const saved = localStorage.getItem(PORTFOLIO_KEY);
+    return saved ? JSON.parse(saved) : [];
+}
+
+function savePortfolio(portfolio) {
+    localStorage.setItem(PORTFOLIO_KEY, JSON.stringify(portfolio));
+    updatePortfolioStats();
+}
+
+function getAlerts() {
+    const saved = localStorage.getItem(ALERTS_KEY);
+    return saved ? JSON.parse(saved) : [];
+}
+
+function saveAlerts(alerts) {
+    localStorage.setItem(ALERTS_KEY, JSON.stringify(alerts));
+    displayAlerts();
+}
+
+// Load live prices
+function loadPrices() {
+    const container = $('#prices-container');
+    
+    fetch('/crypto/api/top?limit=50')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.coins.length > 0) {
+                displayPricesTable(data.coins);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            container.html(`
+                <div class="alert alert-danger m-3">
+                    <i class="fas fa-exclamation-triangle"></i> Error loading prices
+                </div>
+            `);
+        });
+}
+
+function displayPricesTable(coins) {
+    let html = `
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Coin</th>
+                    <th class="text-end">Price</th>
+                    <th class="text-end">24h %</th>
+                    <th class="text-end">7d %</th>
+                    <th class="text-end">Market Cap</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    coins.forEach(coin => {
+        const change24h = coin.price_change_percentage_24h || 0;
+        const change7d = coin.price_change_percentage_7d_in_currency || 0;
+        const change24hClass = change24h >= 0 ? 'text-success' : 'text-danger';
+        const change7dClass = change7d >= 0 ? 'text-success' : 'text-danger';
+        const changeIcon24h = change24h >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
+        const changeIcon7d = change7d >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
+        
+        html += `
+            <tr>
+                <td><strong>${coin.market_cap_rank}</strong></td>
+                <td>
+                    <div class="d-flex align-items-center">
+                        <img src="${coin.image}" alt="${coin.name}" 
+                             style="width: 24px; height: 24px; margin-right: 8px;">
+                        <div>
+                            <strong>${coin.name}</strong>
+                            <br><small class="text-muted">${coin.symbol.toUpperCase()}</small>
+                        </div>
+                    </div>
+                </td>
+                <td class="text-end fw-bold">$${coin.current_price.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 8})}</td>
+                <td class="text-end ${change24hClass} fw-bold">
+                    <i class="fas ${changeIcon24h}"></i> ${Math.abs(change24h).toFixed(2)}%
+                </td>
+                <td class="text-end ${change7dClass} fw-bold">
+                    <i class="fas ${changeIcon7d}"></i> ${Math.abs(change7d).toFixed(2)}%
+                </td>
+                <td class="text-end">$${(coin.market_cap / 1e9).toFixed(2)}B</td>
+                <td class="text-end">
+                    <button class="btn btn-sm btn-outline-primary" 
+                            onclick="quickAddToPortfolio('${coin.id}', '${coin.name}', ${coin.current_price})">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+    
+    html += '</tbody></table>';
+    $('#prices-container').html(html);
+}
+
+// Quick add to portfolio
+function quickAddToPortfolio(coinId, coinName, currentPrice) {
+    const amount = prompt(`Enter amount of ${coinName} you own:`);
+    if (!amount || isNaN(amount)) return;
+    
+    let portfolio = getPortfolio();
+    portfolio.push({
+        id: Date.now(),
+        coinId: coinId,
+        coinName: coinName,
+        amount: parseFloat(amount),
+        purchasePrice: currentPrice,
+        purchaseDate: new Date().toISOString()
+    });
+    
+    savePortfolio(portfolio);
+    displayPortfolio();
+    Utils.showToast(`Added ${amount} ${coinName} to portfolio!`, 'success');
+}
+
+// Add holding form
+$('#add-holding-form').submit(function(e) {
+    e.preventDefault();
+    
+    const coinId = $('#holding-coin-id').val().trim().toLowerCase();
+    const amount = parseFloat($('#holding-amount').val());
+    const price = parseFloat($('#holding-price').val()) || 0;
+    
+    let portfolio = getPortfolio();
+    portfolio.push({
+        id: Date.now(),
+        coinId: coinId,
+        coinName: coinId.charAt(0).toUpperCase() + coinId.slice(1),
+        amount: amount,
+        purchasePrice: price,
+        purchaseDate: new Date().toISOString()
+    });
+    
+    savePortfolio(portfolio);
+    displayPortfolio();
+    this.reset();
+    Utils.showToast('Added to portfolio!', 'success');
+});
+
+// Display portfolio
+function displayPortfolio() {
+    const portfolio = getPortfolio();
+    const container = $('#portfolio-container');
+    
+    if (portfolio.length === 0) {
+        container.html(`
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                Your portfolio is empty. Add cryptocurrencies to start tracking!
+            </div>
+        `);
+        return;
+    }
+    
+    const coinIds = portfolio.map(h => h.coinId).join(',');
+    
+    fetch(`/crypto/api/prices?coins=${coinIds}`)
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) return;
+            
+            let html = '<div class="table-responsive"><table class="table table-hover mb-0"><thead class="table-light"><tr><th>Coin</th><th class="text-end">Amount</th><th class="text-end">Current Price</th><th class="text-end">Value</th><th class="text-end">P/L</th><th class="text-end">Actions</th></tr></thead><tbody>';
+            
+            portfolio.forEach(holding => {
+                const priceData = data.prices[holding.coinId];
+                if (!priceData) return;
+                
+                const currentPrice = priceData.usd;
+                const currentValue = holding.amount * currentPrice;
+                const purchaseValue = holding.amount * holding.purchasePrice;
+                const profitLoss = currentValue - purchaseValue;
+                const profitLossPercent = holding.purchasePrice > 0 ? ((currentPrice - holding.purchasePrice) / holding.purchasePrice * 100) : 0;
+                const plClass = profitLoss >= 0 ? 'text-success' : 'text-danger';
+                
+                html += `
+                    <tr>
+                        <td><strong>${holding.coinName}</strong></td>
+                        <td class="text-end">${holding.amount.toFixed(8)}</td>
+                        <td class="text-end">$${currentPrice.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 8})}</td>
+                        <td class="text-end fw-bold">$${currentValue.toFixed(2)}</td>
+                        <td class="text-end ${plClass} fw-bold">
+                            ${profitLoss >= 0 ? '+' : ''}$${profitLoss.toFixed(2)}
+                            (${profitLossPercent >= 0 ? '+' : ''}${profitLossPercent.toFixed(2)}%)
+                        </td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-danger" onclick="removeHolding(${holding.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table></div>';
+            container.html(html);
+            updatePortfolioStats();
+        });
+}
+
+function removeHolding(id) {
+    if (!confirm('Remove this holding?')) return;
+    
+    let portfolio = getPortfolio();
+    portfolio = portfolio.filter(h => h.id !== id);
+    savePortfolio(portfolio);
+    displayPortfolio();
+    Utils.showToast('Holding removed', 'info');
+}
+
+// Update portfolio stats
+function updatePortfolioStats() {
+    const portfolio = getPortfolio();
+    $('#portfolio-coins').text(portfolio.length);
+    
+    if (portfolio.length === 0) {
+        $('#portfolio-value').text('$0.00');
+        $('#portfolio-change').text('0%').removeClass('text-success text-danger');
+        return;
+    }
+    
+    const coinIds = portfolio.map(h => h.coinId).join(',');
+    
+    fetch(`/crypto/api/prices?coins=${coinIds}`)
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) return;
+            
+            let totalValue = 0;
+            let totalChange = 0;
+            
+            portfolio.forEach(holding => {
+                const priceData = data.prices[holding.coinId];
+                if (priceData) {
+                    totalValue += holding.amount * priceData.usd;
+                    totalChange += (priceData.usd_24h_change || 0);
+                }
+            });
+            
+            const avgChange = portfolio.length > 0 ? totalChange / portfolio.length : 0;
+            
+            $('#portfolio-value').text('$' + totalValue.toFixed(2));
+            $('#portfolio-change')
+                .text((avgChange >= 0 ? '+' : '') + avgChange.toFixed(2) + '%')
+                .removeClass('text-success text-danger')
+                .addClass(avgChange >= 0 ? 'text-success' : 'text-danger');
+        });
+}
+
+// Load trending
+function loadTrending() {
+    fetch('/crypto/api/trending')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.trending.coins) {
+                displayTrending(data.trending.coins);
+            }
+        });
+}
+
+function displayTrending(coins) {
+    let html = '';
+    
+    coins.forEach((item, index) => {
+        const coin = item.item;
+        html += `
+            <div class="col-md-4 mb-4">
+                <div class="card border-0 h-100 shadow-sm" style="border-radius: 20px;">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="d-flex align-items-center">
+                                <img src="${coin.thumb}" alt="${coin.name}" style="width: 32px; height: 32px; margin-right: 12px;">
+                                <div>
+                                    <h5 class="mb-0">${coin.name}</h5>
+                                    <small class="text-muted">${coin.symbol}</small>
+                                </div>
+                            </div>
+                            <span class="badge bg-warning text-dark">#${index + 1}</span>
+                        </div>
+                        <p class="mb-2">
+                            <small class="text-muted">Market Cap Rank:</small>
+                            <strong> #${coin.market_cap_rank || 'N/A'}</strong>
+                        </p>
+                        <p class="mb-0">
+                            <small class="text-muted">Score:</small>
+                            <strong> ${coin.score || 0}</strong>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    $('#trending-container').html(html);
+}
+
+// Alerts
+$('#add-alert-form').submit(function(e) {
+    e.preventDefault();
+    
+    const coinId = $('#alert-coin-id').val().trim().toLowerCase();
+    const price = parseFloat($('#alert-price').val());
+    const condition = $('#alert-condition').val();
+    
+    let alerts = getAlerts();
+    alerts.push({
+        id: Date.now(),
+        coinId: coinId,
+        targetPrice: price,
+        condition: condition,
+        active: true,
+        created: new Date().toISOString()
+    });
+    
+    saveAlerts(alerts);
+    this.reset();
+    Utils.showToast('Alert created!', 'success');
+});
+
+function displayAlerts() {
+    const alerts = getAlerts();
+    const container = $('#alerts-container');
+    $('#active-alerts').text(alerts.filter(a => a.active).length);
+    
+    if (alerts.length === 0) {
+        container.html(`
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                No active alerts. Create one to get price notifications!
+            </div>
+        `);
+        return;
+    }
+    
+    let html = '<div class="list-group">';
+    
+    alerts.forEach(alert => {
+        html += `
+            <div class="list-group-item">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1 text-capitalize">${alert.coinId}</h6>
+                        <small class="text-muted">
+                            Alert when price goes <strong>${alert.condition}</strong> <strong>$${alert.targetPrice.toLocaleString()}</strong>
+                        </small>
+                    </div>
+                    <button class="btn btn-sm btn-danger" onclick="removeAlert(${alert.id})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    container.html(html);
+}
+
+function removeAlert(id) {
+    let alerts = getAlerts();
+    alerts = alerts.filter(a => a.id !== id);
+    saveAlerts(alerts);
+    Utils.showToast('Alert removed', 'info');
+}
+
+// Coin search
+let searchTimeout;
+$('#coin-search').on('input', function() {
+    clearTimeout(searchTimeout);
+    const query = $(this).val().toLowerCase();
+    
+    searchTimeout = setTimeout(() => {
+        $('#prices-container tbody tr').each(function() {
+            const text = $(this).text().toLowerCase();
+            $(this).toggle(text.includes(query));
+        });
+    }, 300);
+});
+
+// Tab events
+$('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+    const target = $(e.target).attr('data-bs-target');
+    
+    if (target === '#portfolio-tab') {
+        displayPortfolio();
+    } else if (target === '#trending-tab') {
+        loadTrending();
+    } else if (target === '#alerts-tab') {
+        displayAlerts();
+    }
+});
+
+// Initialize
+$(document).ready(function() {
+    loadPrices();
+    updatePortfolioStats();
+    
+    // Auto-refresh every 60 seconds
+    setInterval(() => {
+        loadPrices();
+        if ($('#portfolio-tab').hasClass('active')) {
+            displayPortfolio();
+        }
+    }, 60000);
+});
+</script>
+{% endblock %}
