@@ -150,7 +150,7 @@ function updateDashboard(data){
     $("#weather-temp").text(Math.round(data.weather.temperature)+"°C");
     $("#weather-city-label").text(data.weather.city+", "+data.weather.country);
     updateWeatherWidget(data.weather);
-    document.getElementById("tk-wx").innerHTML="WEATHER "+data.weather.city+' <span class="val">'+Math.round(data.weather.temperature)+'°C</span>';
+    document.getElementById("tk-wx").innerHTML='WEATHER '+data.weather.city+' <span class="val">'+Math.round(data.weather.temperature)+'°C</span>';
   } else $("#weather-temp").text("N/A");
   if(data.crypto&&data.crypto.bitcoin){
     var btc=Math.round(data.crypto.bitcoin.usd).toLocaleString();
@@ -169,7 +169,7 @@ function updateNewsWidget(articles){
   if(!articles||!articles.length){$("#news-widget").html('<p style="color:var(--text-dim);font-family:var(--font-mono);font-size:11px;padding:20px 0">No articles</p>');return;}
   var h="";
   articles.slice(0,5).forEach(function(a){
-    h+='<div class="nfi"><div class="nfi-meta"><span class="nfi-src">'+( a.source?a.source.name:"Unknown")+'</span><span class="nfi-t">'+Utils.timeAgo(a.publishedAt)+'</span></div><div class="nfi-title">'+a.title+'</div><a href="'+a.url+'" target="_blank" class="nfi-link">READ →</a></div>';
+    h+='<div class="nfi"><div class="nfi-meta"><span class="nfi-src">'+(a.source?a.source.name:"Unknown")+'</span><span class="nfi-t">'+Utils.timeAgo(a.publishedAt)+'</span></div><div class="nfi-title">'+a.title+'</div><a href="'+a.url+'" target="_blank" class="nfi-link">READ →</a></div>';
   });
   $("#news-widget").html(h);
 }
@@ -193,7 +193,7 @@ function updateGitHubWidget(repos){
   var h="";
   repos.slice(0,5).forEach(function(r){
     var stars=(r.stars||r.stargazers_count||0).toLocaleString(),url=r.url||r.html_url||"#",desc=r.description||"No description",lang=r.language||"Unknown";
-    h+='<div class="mr"><div class="mr-n"><a href="'+url+'" target="_blank">◉ '+( r.name||r.full_name)+'</a></div><div class="mr-d">'+desc+'</div><div class="mr-st"><span>⭐ '+stars+'</span><span>'+lang+'</span></div></div>';
+    h+='<div class="mr"><div class="mr-n"><a href="'+url+'" target="_blank">◉ '+(r.name||r.full_name)+'</a></div><div class="mr-d">'+desc+'</div><div class="mr-st"><span>⭐ '+stars+'</span><span>'+lang+'</span></div></div>';
   });
   $("#github-widget").html(h);
 }
