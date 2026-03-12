@@ -109,7 +109,7 @@ function displaySavedCities(){
   const cities=getSavedCities(),el=document.getElementById("saved-cities-container");
   if(!cities.length){el.innerHTML="";return;}
   let h='<div style="display:flex;flex-wrap:wrap;align-items:center;gap:4px;"><span style="font-family:var(--font-mono);font-size:9px;letter-spacing:.12em;color:var(--text-dim);margin-right:4px">SAVED:</span>';
-  cities.forEach(c=>{h+='<span class="city-chip" onclick="loadWeather(''+c+'')">📍 '+c+' <span class="rm" onclick="event.stopPropagation();removeCity(''+c+'')">×</span></span>';});
+  cities.forEach(c=>{h+='<span class="city-chip" data-city="'+c+'" onclick="loadWeather(this.dataset.city)">📍 '+c+' <span class="rm" data-city="'+c+'" onclick="event.stopPropagation();removeCity(this.dataset.city)">×</span></span>';});
   h+="</div>";el.innerHTML=h;
 }
 
