@@ -241,10 +241,10 @@ function createRepoCard(repo){
     html_url:url,language:lang,stargazers_count:repo.stargazers_count||repo.stars||0,
     forks_count:repo.forks_count||repo.forks||0,owner:repo.owner||{login:fn.split("/")[0]}});
   return '<div class="rcd"><div class="rcd-header"><div class="rcd-name"><a href="'+url+'" target="_blank">◉ '+fn+'</a></div>'+
-    '<button class="fav-btn'+(isFav?" is-favorite":"")+'" data-repo-id="'+id+'" data-repo-json=''+safeRepo.replace(/'/g,"&#39;")+'''+'>'+(isFav?"♥":"♡")+'</button></div>'+
+    '<button class="fav-btn'+(isFav?" is-favorite":"")+'" data-repo-id="'+id+'" data-repo-json="'+safeRepo.replace(/"/g,"&quot;")+'">'+( isFav?"♥":"♡")+'</button></div>'+
     '<div class="rcd-desc">'+desc+'</div>'+
     '<div class="rcd-stats"><span>'+lang+'</span><span>⭐ '+stars+'</span><span>🍴 '+forks+'</span></div>'+
-    '<button class="rcd-btn" onclick="viewRepoDetails(''+owner+'',''+rname+'')">VIEW DETAILS →</button></div>';
+    '<button class="rcd-btn" data-owner="'+owner+'" data-repo="'+rname+'" onclick="viewRepoDetails(this.dataset.owner,this.dataset.repo)">VIEW DETAILS →</button></div>';
 }
 
 function displayRepositories(repos,containerId){
@@ -292,7 +292,7 @@ function displayRepoDetails(repo){
     '<div style="border-bottom:1px solid var(--border);padding-bottom:16px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:flex-start;gap:16px;">'+
     '<div><div style="font-family:var(--font-mono);font-size:16px;font-weight:600;color:var(--cyan);margin-bottom:6px;">◉ '+repo.full_name+'</div>'+
     '<div style="font-size:13px;color:var(--text-secondary)">'+(repo.description||"No description")+'</div></div>'+
-    '<button class="fav-btn'+(isFav?" is-favorite":"")+'" data-repo-id="'+repo.id+'" data-repo-json=''+safeRepo.replace(/'/g,"&#39;")+'''+'>'+(isFav?"♥ SAVED":"♡ SAVE")+'</button></div>'+
+    '<button class="fav-btn'+(isFav?" is-favorite":"")+'" data-repo-id="'+repo.id+'" data-repo-json="'+safeRepo.replace(/"/g,"&quot;")+'">'+( isFav?"♥ SAVED":"♡ SAVE")+'</button></div>'+
     '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">'+
     '<div class="det-stat"><div class="det-stat-val">'+(repo.stargazers_count||0).toLocaleString()+'</div><div class="det-stat-lbl">⭐ STARS</div></div>'+
     '<div class="det-stat"><div class="det-stat-val">'+(repo.forks_count||0).toLocaleString()+'</div><div class="det-stat-lbl">🍴 FORKS</div></div>'+
@@ -336,7 +336,7 @@ $(document).on("click",".fav-btn",function(e){
   e.preventDefault();e.stopPropagation();
   const json=$(this).attr("data-repo-json");
   if(!json){return;}
-  try{toggleFavorite(JSON.parse(json.replace(/&#39;/g,"'")));}
+  try{toggleFavorite(JSON.parse(json.replace(/&quot;/g,'"')));}
   catch(err){showToast("Error toggling favorite","warn");}
 });
 
