@@ -258,7 +258,7 @@ function loadTrending(period){
   period=period||"daily";
   document.getElementById("trending-container").innerHTML='<div class="wl"><div class="ld" style="background:var(--green);box-shadow:0 0 8px var(--green)"></div><span>Loading trending...</span></div>';
   fetch("/github/api/trending?since="+period).then(r=>r.json()).then(d=>{
-    if(d.success&&d.repositories)displayRepositories(d.repositories,"trending-container");
+    if(d.success && d.repositories)displayRepositories(d.repositories,"trending-container");
     else document.getElementById("trending-container").innerHTML='<div style="font-family:var(--font-mono);font-size:11px;color:var(--red);text-align:center;padding:20px">⚠ Error loading repositories</div>';
   });
 }
