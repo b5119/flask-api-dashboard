@@ -220,3 +220,83 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
   .main-content{margin-left:0 !important;}
   .topbar .logo-text{display:none;}
 }
+
+/* ── Mobile Responsive Overhaul ──────────────────────────────── */
+@media(max-width:768px){
+
+  /* Topbar */
+  .topbar{padding:0 10px;gap:6px;}
+  .topbar-center{display:none;}
+  .logo span:first-of-type{font-size:11px;}
+  .logo-tag{display:none;}
+  .topbar-right .topbar-time{font-size:10px;}
+
+  /* Content area fills full width when sidebar hidden */
+  .main-content{margin-left:0 !important;padding:12px !important;}
+
+  /* Metric cards — 2 columns on mobile */
+  .metrics-row{grid-template-columns:1fr 1fr !important;gap:10px;}
+  .metric-card{padding:12px !important;}
+  .metric-value{font-size:22px !important;}
+  .metric-sparkline{height:28px !important;}
+
+  /* Dashboard grid — single column */
+  .dashboard-grid{grid-template-columns:1fr !important;}
+
+  /* News cards — single column */
+  #news-container{grid-template-columns:1fr !important;}
+  .nac-img{height:120px;}
+
+  /* Crypto table — scrollable */
+  #prices-container{overflow-x:auto;}
+  .crypto-full-table{min-width:500px;}
+
+  /* Portfolio/alerts grid — single column */
+  #pane-portfolio > div,
+  #pane-alerts > div{grid-template-columns:1fr !important;}
+
+  /* GitHub repo grid — single column */
+  .repo-grid{grid-template-columns:1fr !important;}
+
+  /* Tabs — scrollable row */
+  div[style*="display:flex"][style*="gap:8px"]{
+    overflow-x:auto;
+    flex-wrap:nowrap !important;
+    -webkit-overflow-scrolling:touch;
+    padding-bottom:4px;
+  }
+  .pill-btn{white-space:nowrap;flex-shrink:0;}
+
+  /* Forecast grid — 3 cols on mobile */
+  .fc-grid{grid-template-columns:repeat(3,1fr) !important;}
+  .fc-card{padding:10px 6px;}
+  .fc-high{font-size:14px !important;}
+
+  /* Weather grid — stack vertically */
+  .wx-grid{grid-template-columns:1fr !important;gap:12px;}
+
+  /* Glass cards */
+  .glass-card{border-radius:10px;}
+
+  /* Panel headers wrap on small screens */
+  .panel-header{flex-wrap:wrap;gap:8px;}
+
+  /* Search bars full width */
+  .glass-card input[type="text"]{min-width:0 !important;}
+
+  /* Bottom ticker readable */
+  .ticker-bar{font-size:10px;}
+
+  /* Trending grid — 2 col */
+  .trending-grid{grid-template-columns:repeat(2,1fr) !important;}
+
+  /* Language buttons — 2 col */
+  #pane-languages div[style*="grid"]{
+    grid-template-columns:repeat(2,1fr) !important;
+  }
+}
+
+@media(max-width:400px){
+  .metrics-row{grid-template-columns:1fr !important;}
+  .fc-grid{grid-template-columns:repeat(2,1fr) !important;}
+}
