@@ -46,5 +46,5 @@ def create_app(config_name='default'):
     app.register_blueprint(crypto_bp, url_prefix='/crypto')
     app.register_blueprint(github_bp, url_prefix='/github')
 
-        start_scheduler(app)
+    start_scheduler(app)
     return app
