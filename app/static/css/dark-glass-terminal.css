@@ -191,3 +191,32 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 ::-webkit-scrollbar-thumb:hover{background:rgba(0,240,255,.2)}
 @media(max-width:1200px){.dashboard-grid{grid-template-columns:1fr 1fr}.news-panel{grid-column:1/-1;grid-row:3;max-height:500px}.github-panel{grid-column:1/-1}}
 @media(max-width:900px){.app-shell{grid-template-columns:1fr}.sidebar{display:none}.metrics-row{grid-template-columns:repeat(2,1fr)}.dashboard-grid{grid-template-columns:1fr}.terminal-log{left:0}}
+
+/* ── Skeleton Loaders ─────────────────────────────────────────── */
+@keyframes shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}
+.skeleton{background:linear-gradient(90deg,var(--bg-elevated) 25%,var(--bg-panel) 50%,var(--bg-elevated) 75%);background-size:400px 100%;animation:shimmer 1.4s ease infinite;border-radius:4px;}
+.sk-line{height:11px;margin-bottom:8px;border-radius:3px;}
+.sk-line.wide{width:85%;}
+.sk-line.med{width:60%;}
+.sk-line.short{width:35%;}
+.sk-title{height:14px;width:70%;margin-bottom:10px;border-radius:3px;}
+.sk-img{height:140px;width:100%;border-radius:8px 8px 0 0;margin-bottom:0;}
+.sk-card{background:var(--bg-elevated);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.sk-card-body{padding:14px;}
+.sk-metric{height:36px;width:55%;border-radius:4px;margin:8px 0 4px;}
+.sk-sub{height:9px;width:40%;border-radius:3px;}
+.sk-row{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.03);}
+.sk-circle{width:24px;height:24px;border-radius:50%;flex-shrink:0;}
+.sk-col{flex:1;display:flex;flex-direction:column;gap:5px;}
+/* ── Mobile Sidebar ───────────────────────────────────────────── */
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(5,7,26,.7);backdrop-filter:blur(4px);z-index:199;}
+.hamburger{display:none;background:none;border:1px solid var(--border);border-radius:6px;padding:6px 8px;cursor:pointer;color:var(--text-secondary);font-size:16px;line-height:1;}
+.hamburger:hover{border-color:var(--border-accent);color:var(--cyan);}
+@media(max-width:768px){
+  .hamburger{display:flex;align-items:center;justify-content:center;}
+  .sidebar{transform:translateX(-100%);transition:transform .25s ease;z-index:200;}
+  .sidebar.open{transform:translateX(0);}
+  .sidebar-overlay.open{display:block;}
+  .main-content{margin-left:0 !important;}
+  .topbar .logo-text{display:none;}
+}

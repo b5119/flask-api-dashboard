@@ -34,6 +34,60 @@ const Utils = {
 <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/dark-glass-terminal.css') }}">
 {% block extra_css %}{% endblock %}
+
+<script>
+/* ── fetchWithRetry: auto-retry on failure ── */
+async function fetchWithRetry(url, options={}, retries=3, delayMs=2000){
+  for(let i=0;i<retries;i++){
+    try{
+      const resp = await fetch(url, {...options, signal: AbortSignal.timeout(10000)});
+      if(!resp.ok) throw new Error('HTTP '+resp.status);
+      return resp;
+    }catch(err){
+      if(i===retries-1) throw err;
+      await new Promise(r=>setTimeout(r, delayMs*(i+1)));
+    }
+  }
+}
+/* ── Skeleton builder ── */
+const Skeleton = {
+  lines(count=3){
+    const widths=['wide','med','short','wide','med'];
+    return Array.from({length:count},(_,i)=>
+      `<div class="skeleton sk-line ${widths[i%widths.length]}"></div>`
+    ).join('');
+  },
+  card(){
+    return `<div class="sk-card">
+      <div class="skeleton sk-img"></div>
+      <div class="sk-card-body">
+        <div class="skeleton sk-title"></div>
+        ${this.lines(2)}
+      </div>
+    </div>`;
+  },
+  cards(n=3){
+    return Array.from({length:n},()=>this.card()).join('');
+  },
+  metricCard(){
+    return `<div style="padding:4px 0">
+      <div class="skeleton sk-metric"></div>
+      <div class="skeleton sk-sub"></div>
+    </div>`;
+  },
+  tableRows(n=5){
+    return Array.from({length:n},()=>
+      `<div class="sk-row">
+        <div class="skeleton sk-circle"></div>
+        <div class="sk-col">
+          <div class="skeleton sk-line med"></div>
+          <div class="skeleton sk-line short"></div>
+        </div>
+      </div>`
+    ).join('');
+  }
+};
+</script>
 </head>
 <body>
 <div class="ambient ambient-1"></div>
@@ -91,8 +145,10 @@ const Utils = {
 </div>
 
 <div class="app-shell">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
   <header class="topbar">
-    <div class="logo">
+    <button class="hamburger" id="hamburger-btn" aria-label="Menu">&#9776;</button>
+      <div class="logo">
       <div class="logo-mark">A</div>
       <span>API HUB</span>
       <span class="logo-tag">v1.0</span>
@@ -207,5 +263,19 @@ document.querySelectorAll('.panel-actions').forEach(function(g){
 });
 </script>
 {% block extra_js %}{% endblock %}
+
+<script>
+(function(){
+  const btn = document.getElementById('hamburger-btn');
+  const sidebar = document.querySelector('.sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  if(!btn||!sidebar||!overlay) return;
+  function open(){sidebar.classList.add('open');overlay.classList.add('open');document.body.style.overflow='hidden';}
+  function close(){sidebar.classList.remove('open');overlay.classList.remove('open');document.body.style.overflow='';}
+  btn.addEventListener('click', open);
+  overlay.addEventListener('click', close);
+  document.querySelectorAll('.sidebar a').forEach(a=>a.addEventListener('click', close));
+})();
+</script>
 </body>
 </html>

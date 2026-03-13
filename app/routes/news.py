@@ -89,3 +89,19 @@ def get_categories():
     """Get available news categories"""
     categories = ['business', 'entertainment', 'general', 'health', 'science', 'sports', 'technology']
     return jsonify({'success': True, 'categories': categories})
+
+@news_bp.route('/api/zambia')
+def zambia_news():
+    """Serve locally scraped Zambian news."""
+    from app.scrapers.zambia_news import get_cached_articles
+    try:
+        data = get_cached_articles()
+        return jsonify({
+            'success': True,
+            'articles': data.get('articles', []),
+            'total_results': data.get('total', 0),
+            'last_updated': data.get('last_updated', ''),
+            'sources': data.get('sources', []),
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e), 'articles': []})

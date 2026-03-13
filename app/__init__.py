@@ -6,6 +6,26 @@ from config import config
 db = SQLAlchemy()
 migrate = Migrate()
 
+
+# ── APScheduler for background scraping ───────────────────────
+from apscheduler.schedulers.background import BackgroundScheduler
+from app.scrapers.zambia_news import run_scraper
+import atexit
+
+def start_scheduler(app):
+    scheduler = BackgroundScheduler(daemon=True)
+    scheduler.add_job(
+        func=run_scraper,
+        trigger='interval',
+        minutes=30,
+        id='zambia_scraper',
+        replace_existing=True
+    )
+    scheduler.start()
+    atexit.register(lambda: scheduler.shutdown(wait=False))
+    app.logger.info("Background scraper scheduled every 30 minutes")
+    return scheduler
+
 def create_app(config_name='default'):
     app = Flask(__name__)
     app.config.from_object(config[config_name])
@@ -26,4 +46,5 @@ def create_app(config_name='default'):
     app.register_blueprint(crypto_bp, url_prefix='/crypto')
     app.register_blueprint(github_bp, url_prefix='/github')
 
+        start_scheduler(app)
     return app
