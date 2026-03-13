@@ -38,7 +38,7 @@ def dashboard_data():
         news_data = news_api.get_top_headlines(page_size=5)
         
         # Get weather
-        weather_data = weather_api.get_current_weather('London')
+        weather_data = weather_api.get_current_weather('Lusaka')
         
         # Get crypto
         crypto_data = crypto_api.get_prices(['bitcoin', 'ethereum', 'cardano'])
@@ -125,7 +125,7 @@ def index():
     return render_template('weather.html',
                          title='Weather',
                          active_page='weather',
-                         city='London')
+                         city='Lusaka')
 
 # Alias for weather_home
 @weather_bp.route('/home')
