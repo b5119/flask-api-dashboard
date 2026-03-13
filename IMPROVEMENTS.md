@@ -1,344 +1,144 @@
-# 🚀 API Hub - Complete Feature Improvements
+# API Hub — Improvements & Changelog
 
-## 📰 News Center Improvements
+## v2.0 — Dark Glass Terminal Redesign (March 2026)
 
-### ✨ New Features Added
-
-#### 1. **Global vs Local News Tabs**
-- **Global Tab**: Browse news from any country worldwide
-- **Local Tab**: Get news specific to your detected location
-- Seamless switching between global and local content
-
-#### 2. **Smart Location Detection**
-- Auto-detect user's city using browser GPS
-- Shows "Detecting your location..." status
-- Fallback to country news if city-specific news unavailable
-
-#### 3. **Expanded Country Support**
-Now includes 13 countries (vs previous 8):
-- 🇺🇸 United States
-- 🇬🇧 United Kingdom  
-- 🇨🇦 Canada
-- 🇦🇺 Australia
-- 🇩🇪 Germany
-- 🇫🇷 France
-- 🇯🇵 Japan
-- 🇮🇳 India
-- 🇨🇳 China
-- 🇧🇷 Brazil
-- 🇿🇦 South Africa
-- 🇳🇬 Nigeria
-- 🇰🇪 Kenya
-
-#### 4. **Enhanced Search & Filtering**
-- Real-time search (500ms debounce)
-- Filter by 7 categories with icons:
-  - 📰 General
-  - 💼 Business
-  - 💻 Technology
-  - 🎬 Entertainment
-  - ⚕️ Health
-  - 🔬 Science
-  - ⚽ Sports
-
-#### 5. **Better Article Display**
-- Larger, more readable cards
-- Source badges
-- Time ago stamps
-- Fallback images for articles without photos
-- "Load More" pagination
-
-### 🎯 User Experience
-- **Global trending**: See what's happening worldwide
-- **Local news**: One-click access to your city's news
-- **Smart fallback**: If city news unavailable, shows country news
-- **Visual feedback**: Loading states, error messages, success notifications
+This release replaced the entire frontend with the Dark Glass Terminal (DGT) design system and fixed several data-loading issues that prevented API responses from rendering.
 
 ---
 
-## 💰 Crypto Tracker Improvements
+### Design System — Dark Glass Terminal
 
-### ✨ New Features Added
+Replaced Bootstrap 5 + purple gradient glassmorphism with a fully custom design system.
 
-#### 1. **Portfolio Management**
-- **Add Holdings**: Track your cryptocurrency investments
-- **Real-time Valuation**: See current value of your portfolio
-- **Profit/Loss Tracking**: 
-  - Shows $ gain/loss per holding
-  - Shows % gain/loss
-  - Color-coded (green=profit, red=loss)
-- **Purchase History**: Track when and at what price you bought
+| Before | After |
+|--------|-------|
+| Bootstrap 5 | Custom DGT CSS (`dark-glass-terminal.css`) |
+| Purple gradient background | Void-black layered backgrounds |
+| Poppins font | Space Grotesk (UI) + Fira Code (mono) |
+| White cards with blur | Dark glass panels with neon accents |
+| Bootstrap nav | Persistent shell sidebar + topbar |
+| No global utilities | `Utils.timeAgo()`, `Utils.formatDate()`, `Utils.formatNum()` |
+| No global notifications | `showToast(msg, type)` available on all pages |
 
-#### 2. **Portfolio Statistics**
-Four key metrics displayed:
-- **Total Portfolio Value**: Combined value of all holdings
-- **24h Change**: Average 24-hour price change across portfolio
-- **Holdings Count**: Number of different cryptocurrencies owned
-- **Active Alerts**: Number of price alerts set
-
-#### 3. **Price Alerts System**
-- **Create Alerts**: Set price targets for any coin
-- **Conditions**: "Price goes above" or "Price goes below"
-- **Alert Management**: View and remove alerts
-- **LocalStorage**: Alerts saved locally (no database needed)
-
-#### 4. **Enhanced Price Table**
-- **Top 50 coins** by market cap
-- **Search functionality**: Find coins quickly
-- **Quick add button**: Add to portfolio with one click
-- **Detailed metrics**:
-  - Current price
-  - 24h change %
-  - 7d change %
-  - Market cap
-  - Coin images
-
-#### 5. **Trending Coins**
-- Visual trending cards
-- Market cap rank
-- Trending score
-- Coin logos and symbols
-
-### 🎯 User Experience
-- **One-click portfolio adding**: Click + button on any coin
-- **LocalStorage persistence**: Portfolio saved in browser
-- **Auto-refresh**: Prices update every 60 seconds
-- **Color-coded changes**: Green for gains, red for losses
-- **Quick statistics**: See portfolio health at a glance
+Shell chrome added to `base.html`:
+- Topbar with logo, command palette, live clock
+- Collapsible sidebar with navigation and API status indicators
+- Live ticker bar at the bottom
+- Global jQuery 3.7.1 and Utils object loaded for all pages
 
 ---
 
-## 🌤️ Weather Station (Already Improved)
+### Pages Rewritten
 
-### ✨ Existing Features
-- **Auto-location detection**: GPS-based city detection
-- **Save favorite cities**: Quick-access to saved locations
-- **5-day forecast**: Detailed weather predictions
-- **Smart defaults**: Remembers last searched city
-- **Beautiful UI**: Modern glassmorphism design
+All 5 templates fully rewritten to extend `base.html`.
 
----
+**index.html — Intelligence Dashboard**
+- 4 metric cards with SVG sparklines: news count, temperature, BTC price, trending repos
+- 2x2 panel grid: latest news, current weather, top cryptos, trending repos
+- Live ticker showing BTC and weather city
+- Welcome toast on load
 
-## 🐙 GitHub Explorer (Existing Features)
+**weather.html — Weather Station**
+- DGT search bar with SEARCH, MY LOCATION, SAVE buttons
+- Saved cities as chip elements (localStorage)
+- Current conditions panel: big icon, large temp, detail grid, sunrise/sunset bar
+- 5-day forecast in fc-grid layout
 
-### ✨ Current Features
-- **Search repositories**: Find any public repo
-- **Trending repos**: Daily, weekly, monthly trends
-- **Language filtering**: Browse by programming language
-- **Repository details**: Stars, forks, description
-- **No authentication required**: 60 requests/hour without token
+**news.html — Global News Center**
+- Mode toggle: Global Trending / Local News
+- Global controls: search, category select, country select (13 countries)
+- Local controls: GPS detection via Nominatim reverse geocoding
+- Article cards with image, source badge, timeAgo, title, description
+- Load More pagination
 
-### 💡 Potential Future Improvements
-- Save favorite repositories
-- Repository comparison tool
-- Code statistics visualization
-- Contributor activity charts
+**crypto.html — Crypto Tracker**
+- 4 tabs: Live Prices, My Portfolio, Trending, Alerts
+- Live prices table: top 50 by market cap with coin images, 24h/7d change, market cap
+- Portfolio: add holdings, real-time P/L calculations, remove holdings
+- Alerts: above/below price targets stored in localStorage
+- Trending: CoinGecko trending coins grid
+- Auto-refreshes every 60 seconds
 
----
-
-## 🎨 UI/UX Improvements Across All Pages
-
-### Design Enhancements
-1. **Glassmorphism Cards**: Modern frosted-glass effect
-2. **Gradient Backgrounds**: Purple gradient (667eea → 764ba2)
-3. **Smooth Animations**: Fade-in effects, hover transitions
-4. **Stat Cards**: Beautiful hover effects with scale transform
-5. **Responsive Design**: Works on mobile, tablet, desktop
-
-### User Experience
-1. **Toast Notifications**: Non-intrusive success/error messages
-2. **Loading States**: Animated spinners with status text
-3. **Error Handling**: Clear error messages with retry options
-4. **Empty States**: Helpful messages when no data available
-5. **Search Debouncing**: Efficient API usage (500ms delay)
+**github.html — GitHub Explorer**
+- 5 tabs: Trending, Favorites, Languages, Results, Details
+- Trending repos with daily/weekly/monthly filter
+- Search with quick-filter buttons (Popular, Recent, JS, PY, TS, RS, GO, ML)
+- Favorites saved to localStorage
+- Full repo details: stats, topics, license, homepage link
 
 ---
 
-## 📊 Data Persistence Strategy
+### Infrastructure Added
 
-### LocalStorage Usage
-All user preferences saved locally (no database required for basic features):
-
-1. **Weather**:
-   - Saved cities list
-   - Default city preference
-
-2. **Crypto**:
-   - Portfolio holdings
-   - Price alerts
-   - Purchase history
-
-3. **News**:
-   - Last selected country/category
-   - Reading preferences
-
-### Benefits
-- ✅ No user authentication required
-- ✅ Instant access to preferences
-- ✅ Works offline for saved data
-- ✅ Privacy-friendly (data stays on device)
-- ✅ No database setup needed
-- **Dark Mode**
-   - Toggle light/dark theme
-   - Auto-detect system preference
-   - Per-page theme settings
+- `app/utils/logger.py` — structured rotating file logger, outputs to `logs/dashboard.log`
+- `app/utils/rate_limit.py` — Flask-Limiter, 200 req/day + 50 req/hour per IP
+- `/health` endpoint returning JSON API status
 
 ---
 
-## 🔑 API Key Configuration
+### Bug Fixes
 
-### Simple .env Setup
-```env
-# Required
-NEWSAPI_KEY=your_newsapi_key
-OPENWEATHER_API_KEY=your_weather_key
+**Jinja2 TemplateSyntaxError: Missing end of comment tag**
+CSS ID selectors written as `{#element{` were parsed as Jinja2 comment tags.
+Fixed by adding a space: `{ #element {`.
 
-# Optional (works without)
-GITHUB_TOKEN=your_github_token
+**ReferenceError: $ is not defined**
+jQuery was missing from `base.html`. Added to `<head>` before all page scripts.
 
-# Flask
-SECRET_KEY=random-secret-key
-FLASK_ENV=development
-```
+**ReferenceError: Utils is not defined**
+The `Utils` object (`timeAgo`, `formatDate`, `formatNum`) was referenced in all page
+templates but never defined. Added to `base.html` immediately after jQuery.
 
-### API Limits (Free Tiers)
-| API | Free Limit | Sufficient For |
-|-----|------------|----------------|
-| NewsAPI | 100 req/day | ✅ 4 checks per day |
-| Weather | 1,000 req/day | ✅ Check every 2 min |
-| GitHub | 60 req/hour | ✅ Casual browsing |
-| CoinGecko | Unlimited | ✅ No limits! |
+**SyntaxError: unexpected token: string literal (weather.html)**
+City-chip onclick handlers used curly/smart quotes (U+2018/U+2019) from copy-paste,
+breaking JS string concatenation. Fixed by converting to data-attribute pattern:
+`data-city="'+c+'"` with `onclick="loadWeather(this.dataset.city)"`.
 
----
-
-## 🚀 Performance Optimizations
-
-### 1. **Smart Loading**
-- Load data only when tab is active
-- Auto-refresh only for visible content
-- Lazy load images
-
-### 2. **Efficient API Usage**
-- Debounced search (500ms)
-- Batch API requests
-- Cache responses in browser
-- Rate limiting awareness
-
-### 3. **User Experience**
-- Instant feedback (toast notifications)
-- Optimistic UI updates
-- Background data refresh
-- Progressive enhancement
+**SyntaxError: unexpected token: string literal (github.html)**
+Same smart-quote issue on the repo card VIEW DETAILS button and the
+`data-repo-json` attribute. Fixed using `data-owner`/`data-repo` attributes
+and `data-repo-json` with `&quot;` encoding.
 
 ---
 
-## 📱 Mobile Responsiveness
+### Feature Comparison
 
-### Breakpoints
-- **Mobile**: < 768px (Single column layout)
-- **Tablet**: 768px - 1024px (Two column layout)
-- **Desktop**: > 1024px (Full multi-column layout)
-
-### Mobile Features
-- Touch-friendly buttons (min 44px)
-- Swipeable tabs
-- Hamburger menu
-- Optimized font sizes
-- Responsive images
-6. **Dark Mode**
-   - Toggle light/dark theme
-   - Auto-detect system preference
-   - Per-page theme settings
----
-
-## 🎯 Feature Comparison
-
-### Before vs After
-
-| Feature | Before | After |
-|---------|--------|-------|
-| **News** | US only | 13 countries + local detection |
-| **News** | One category | 7 categories with icons |
-| **News** | Fixed country | Global + Local tabs |
-| **Crypto** | Price viewing only | Full portfolio tracking |
-| **Crypto** | No alerts | Price alert system |
-| **Crypto** | No profit tracking | P/L calculations |
-| **Weather** | Manual entry | GPS auto-detection |
-| **Weather** | Single city | Unlimited saved cities |
-| **All** | Basic design | Modern glassmorphism |
-| **All** | No persistence | LocalStorage for all |
+| Feature | v1.0 | v2.0 |
+|---------|------|------|
+| Design | Bootstrap + purple gradient | Dark Glass Terminal |
+| News countries | US only | 13 countries |
+| News modes | Single feed | Global + Local with GPS |
+| Crypto | Price table only | Portfolio, P/L, alerts, trending |
+| Weather | Manual search | GPS detection + saved cities |
+| GitHub | Trending + search | + Favorites, language browser, full details |
+| Data persistence | Partial | localStorage across all pages |
+| Notifications | None | Global toast system |
+| Logging | None | Structured rotating file log |
+| Rate limiting | None | Flask-Limiter on all routes |
+| Health check | None | `/health` endpoint |
 
 ---
 
-## 🔮 Future Enhancement Ideas
+## v1.0 — Initial Release
 
-### Phase 2 Features
-1. **User Authentication**
-   - Register/Login system
-   - Cloud-sync preferences
-   - Multi-device support
-
-2. **Advanced Analytics**
-   - Portfolio performance charts
-   - Historical data graphs
-   - Trend analysis
-
-3. **Notifications**
-   - Browser push notifications
-   - Email alerts
-   - Webhook integrations
-
-4. **Social Features**
-   - Share articles
-   - Public portfolios
-   - Follow other users
-
-5. **Data Export**
-   - Export portfolio to CSV/PDF
-   - Generate reports
-   - Tax calculations
-
-<<<<<<< HEAD
-
-=======
->>>>>>> bd8d72a8c8c4e500cdb0aa89941bdf289effdf94
+- Flask application factory with Blueprint-based routing
+- 4 API integrations: NewsAPI, OpenWeatherMap, CoinGecko, GitHub
+- Bootstrap 5 glassmorphism UI with purple gradient
+- Basic news filtering by category
+- Weather search by city name
+- Crypto price table (top coins)
+- GitHub trending and repository search
+- localStorage for weather saved cities and crypto portfolio
 
 ---
 
-## 📈 Success Metrics
+## Planned — v2.1
 
-### User Engagement
-- ✅ Multiple data sources (4 APIs)
-- ✅ Personalization (location detection, saved preferences)
-- ✅ Real-time updates (auto-refresh)
-- ✅ Interactive features (portfolio, alerts, search)
-
-### Technical Excellence
-- ✅ No database required for basic usage
-- ✅ Fast load times (<2s)
-- ✅ Responsive design
-- ✅ Error handling
-- ✅ Graceful degradation
-
-### User Satisfaction
-- ✅ Clear documentation (SETUP_GUIDE.md)
-- ✅ Easy API key setup (5 minutes)
-- ✅ Beautiful, modern UI
-- ✅ Intuitive navigation
-- ✅ Helpful feedback messages
-
----
-
-## 🎉 Summary
-
-Your API Hub now has:
-- ✅ **Global + Local News** with 13 country support
-- ✅ **Full Crypto Portfolio Tracker** with P/L calculations
-- ✅ **Price Alert System** for crypto
-- ✅ **Smart Location Detection** for news & weather
-- ✅ **LocalStorage Persistence** for all user data
-- ✅ **Modern Glassmorphism UI** throughout
-- ✅ **Mobile-Responsive Design**
-- ✅ **No Database Required** for basic features
-
-**Total Enhancement:** 20+ major features added! 🚀
+- Crypto price history charts (Chart.js)
+- Browser push notifications for price alerts
+- Portfolio export to CSV
+- WebSocket real-time price stream
+- User authentication with cloud-sync preferences
+- Skeleton loader states for slow connections
+- Language color dots on GitHub repo cards
+- Mobile sidebar overlay fix
