@@ -1,210 +1,244 @@
-# 🚀 API Hub - Quick Setup Guide
+# API Hub — Dark Glass Terminal Dashboard
 
-Get your dashboard running in **5 minutes**! Follow these simple steps.
+![Python](https://img.shields.io/badge/python-3.8+-blue.svg)
+![Flask](https://img.shields.io/badge/flask-3.0-green.svg)
+![License](https://img.shields.io/badge/license-MIT-orange.svg)
+![Status](https://img.shields.io/badge/status-active-success.svg)
 
-## 📋 Prerequisites
-
-- Python 3.8+ installed
-- Internet connection
-
-## 🔑 Step 1: Get Your FREE API Keys
-
-### 1️⃣ News API (Required)
-**Time:** 2 minutes | **Cost:** FREE
-
-1. Visit: https://newsapi.org/register
-2. Enter your email and name
-3. Click "Submit"
-4. Copy your API key from the confirmation page
-5. ✅ **Save it** - You'll need it for the `.env` file
-
-### 2️⃣ OpenWeatherMap API (Required)
-**Time:** 2 minutes | **Cost:** FREE
-
-1. Visit: https://openweathermap.org/api
-2. Click "Sign Up" (top right)
-3. Create account with email
-4. Go to "API keys" tab
-5. Copy the default API key (or create new one)
-6. ⏰ **Note:** Key activation takes 10-15 minutes
-7. ✅ **Save it** - You'll need it for the `.env` file
-
-### 3️⃣ GitHub Token (Optional)
-**Time:** 1 minute | **Cost:** FREE
-
-**Without token:** 60 requests/hour ✅ Sufficient for personal use
-**With token:** 5,000 requests/hour
-
-To get a token (optional):
-1. Visit: https://github.com/settings/tokens
-2. Click "Generate new token (classic)"
-3. Give it a name: `API Hub Dashboard`
-4. Select scopes: `public_repo` (read public repositories)
-5. Click "Generate token"
-6. ✅ **Save it** immediately (shown only once!)
-
-### 4️⃣ Crypto API (No key needed!)
-**CoinGecko API** - Works out of the box! ✨
+A multi-API intelligence dashboard built with Flask, featuring the **Dark Glass Terminal** design system — a dark, glassmorphic UI with cyan/magenta/amber accents, monospace typography, and a persistent command shell.
 
 ---
 
-## ⚙️ Step 2: Configure Your Dashboard
+## Features
 
-### Create `.env` file
+### Intelligence Dashboard (Overview)
+- Live metric cards: latest news count, temperature, BTC price, trending repos
+- Sparkline graphs per metric
+- 2×2 panel grid: news widget, weather widget, crypto widget, GitHub widget
+- Live ticker bar with BTC price and weather city
+- Auto-refresh every 5 minutes
 
-In your project root, create a file named `.env`:
+### Global News Center
+- Global trending news from 13 countries
+- Local news via GPS auto-detection (Nominatim reverse geocoding)
+- 7 categories: General, Business, Technology, Entertainment, Health, Science, Sports
+- Real-time search with 500ms debounce
+- Load More pagination
 
-```bash
-# Required API Keys
-NEWSAPI_KEY=your_newsapi_key_here
-OPENWEATHER_API_KEY=your_openweathermap_key_here
+### Weather Station
+- GPS auto-detection for your city
+- Save unlimited cities to localStorage
+- Current conditions: temperature, humidity, wind, pressure, feels like, hi/lo, sunrise/sunset
+- 5-day forecast with daily summary cards
 
-# Optional (GitHub works without token, but with limits)
-GITHUB_TOKEN=your_github_token_here
+### Crypto Tracker
+- Live prices for top 50 cryptocurrencies (CoinGecko, no key required)
+- Portfolio management with real-time P/L calculations
+- Price alerts (above/below target)
+- Trending coins tab
+- Auto-refresh every 60 seconds
 
-# Flask Configuration
-SECRET_KEY=your-super-secret-random-key-change-this
-FLASK_ENV=development
-```
-
-### Example `.env` file:
-```bash
-NEWSAPI_KEY=abc123def456ghi789jkl012mno345pqr678
-OPENWEATHER_API_KEY=xyz789abc123def456ghi789jkl012mno3
-GITHUB_TOKEN=ghp_aBcDeFgHiJkLmNoPqRsTuVwXyZ1234567890
-SECRET_KEY=my-super-secret-key-12345
-FLASK_ENV=development
-```
+### GitHub Explorer
+- Search millions of public repositories
+- Trending repos: daily, weekly, monthly
+- Browse by programming language
+- Save favorite repositories to localStorage
+- Full repository details: stars, forks, issues, license, topics
 
 ---
 
-## 🏃 Step 3: Install & Run
+## Design System — Dark Glass Terminal
 
-### Install Dependencies
+### Colour Palette
+| Token | Value | Role |
+|-------|-------|------|
+| `--bg-void` | `#05071a` | Page background |
+| `--bg-base` | `#0a0e27` | Base layer |
+| `--bg-panel` | `#0f1535` | Cards and panels |
+| `--cyan` | `#00f0ff` | Primary accent |
+| `--green` | `#00ff41` | Positive / success |
+| `--magenta` | `#ff00ff` | Secondary accent |
+| `--amber` | `#ffb700` | Warning / highlight |
+| `--red` | `#ff3355` | Negative / error |
+
+### Typography
+- **UI:** Space Grotesk
+- **Mono:** Fira Code
+
+### Shell Chrome
+- Persistent topbar: logo, command palette, live clock
+- Collapsible sidebar: navigation, API status indicators
+- Live ticker bar at the bottom
+- Toast notification system (`showToast(msg, type)`)
+- Global `Utils` object: `timeAgo()`, `formatDate()`, `formatNum()`
+
+---
+
+## Quick Start
+
+### 1. Clone & setup
 ```bash
+git clone https://github.com/b5119/flask-api-dashboard.git
+cd flask-api-dashboard
+python -m venv venv
+source venv/bin/activate       # Windows: venv\\Scripts\\activate
 pip install -r requirements.txt
 ```
 
-### Initialize Database (Optional)
-```bash
-flask init_db
+### 2. Get free API keys
+| API | Time | Link |
+|-----|------|------|
+| NewsAPI | 2 min | https://newsapi.org/register |
+| OpenWeatherMap | 2 min | https://openweathermap.org/api |
+| GitHub Token | 1 min, optional | https://github.com/settings/tokens |
+| CoinGecko | — | No key needed |
+
+### 3. Create `.env`
+```env
+SECRET_KEY=your-secret-key
+NEWSAPI_KEY=your_newsapi_key
+OPENWEATHER_API_KEY=your_openweathermap_key
+GITHUB_TOKEN=optional_github_token
+FLASK_ENV=development
 ```
 
-### Start the Dashboard
+### 4. Run
 ```bash
 python run.py
 ```
 
-### Open in Browser
-Visit: **http://localhost:5000** 🎉
+Visit **http://localhost:5000**
 
 ---
 
-## ✨ Features You Can Use NOW
-
-### 🌤️ Weather Station
-- **Auto-location detection** - Click "My Location" to use GPS
-- **Save favorite cities** - One-click access to saved locations
-- **5-day detailed forecast** - Temperature, humidity, wind
-- **No manual API needed** - Uses browser geolocation
-
-### 📰 News Center
-- Browse by category (tech, business, sports, etc.)
-- Filter by country
-- Real-time headlines
-- Save favorite articles
-
-### 💰 Crypto Tracker
-- Live prices for 100+ cryptocurrencies
-- 24-hour price changes
-- Trending coins
-- Market cap rankings
-- **No API key required** - Uses free CoinGecko API
-
-### 🐙 GitHub Explorer
-- Search repositories
-- Trending repos by language
-- Repository analytics
-- Contributor insights
-- **Works without token** - 60 requests/hour is plenty
-
----
-
-## 🎯 Usage Tips
-
-### Weather Station
-1. **First time:** Allow browser location access for auto-detection
-2. **Save cities:** Search for a city → Click "Save" → Quick access next time
-3. **Default city:** Last searched city becomes your default
-
-### Optimal API Key Usage
-- **News API:** 100 requests/day (FREE tier) = Check news 4x/day
-- **Weather API:** 1,000 calls/day (FREE tier) = Check every 2 minutes!
-- **GitHub:** 60/hour without token = 1 request/minute
-- **Crypto:** Unlimited (FREE) = No worries!
-
----
-
-## 🆘 Troubleshooting
-
-### "API key not found" error
-1. Check `.env` file exists in project root
-2. Verify key names match exactly: `NEWSAPI_KEY`, `OPENWEATHER_API_KEY`
-3. Restart Flask server after editing `.env`
-
-### Weather API not working
-- Wait 10-15 minutes after getting key (activation time)
-- Test key: `https://api.openweathermap.org/data/2.5/weather?q=London&appid=YOUR_KEY`
-
-### Can't detect my location
-- Allow browser location permission
-- Use manual city search instead
-- Check browser console for errors
-
-### News not loading
-- Verify API key is active on newsapi.org
-- Check you haven't exceeded 100 requests/day
-- Try different category/country
-
----
-
-## 🎨 Customization
-
-### Change Default City
-Edit `app/templates/weather.html`:
-```javascript
-const DEFAULT_CITY = 'YourCity';  // Line 150
+## Project Structure
 ```
-
-### Add More News Categories
-Edit `app/routes/news.py`:
-```python
-categories = ['your-category', ...]  // Add to list
+flask-api-dashboard/
+├── app/
+│   ├── __init__.py              # Application factory
+│   ├── api/                     # External API service wrappers
+│   │   ├── news_api.py
+│   │   ├── weather_api.py
+│   │   ├── crypto_api.py
+│   │   └── github_api.py
+│   ├── routes/                  # Flask route controllers
+│   │   ├── main.py              # Dashboard + /health + /dashboard/data
+│   │   ├── news.py
+│   │   ├── weather.py
+│   │   ├── crypto.py
+│   │   └── github.py
+│   ├── templates/               # Jinja2 templates
+│   │   ├── base.html            # DGT shell: topbar, sidebar, ticker, Utils
+│   │   ├── index.html           # Intelligence Dashboard
+│   │   ├── news.html            # Global News Center
+│   │   ├── weather.html         # Weather Station
+│   │   ├── crypto.html          # Crypto Tracker
+│   │   └── github.html          # GitHub Explorer
+│   ├── static/
+│   │   └── css/
+│   │       └── dark-glass-terminal.css   # Full DGT design system
+│   └── utils/
+│       ├── __init__.py
+│       ├── logger.py            # Structured logging
+│       └── rate_limit.py        # Flask-Limiter (200/day, 50/hour)
+├── logs/
+│   └── dashboard.log
+├── config.py
+├── run.py
+├── requirements.txt
+├── README.md
+└── IMPROVEMENTS.md
 ```
 
 ---
 
-## 📊 API Limits Summary
+## Tech Stack
 
-| API | Free Tier | Upgrade Cost | What You Get |
-|-----|-----------|--------------|--------------|
-| NewsAPI | 100 req/day | $449/month | Unlimited requests |
-| OpenWeather | 1,000 req/day | $40/month | Unlimited requests |
-| GitHub | 60 req/hour | FREE with token | 5,000 req/hour |
-| CoinGecko | Unlimited | FREE forever | ❤️ Always free |
+### Backend
+| Package | Version | Purpose |
+|---------|---------|---------|
+| Flask | 3.0 | Web framework |
+| Flask-Limiter | — | Rate limiting |
+| Requests | 2.31 | HTTP client |
+| Python-dotenv | 1.0 | Environment config |
 
-**💡 Tip:** Free tiers are MORE than enough for personal use!
+### Frontend
+| Library | Purpose |
+|---------|---------|
+| Dark Glass Terminal CSS | Custom DGT design system |
+| jQuery 3.7.1 | DOM + AJAX |
+| Space Grotesk / Fira Code | Typography (Google Fonts) |
+
+### APIs
+| API | Free Limit | Key Required |
+|-----|-----------|--------------|
+| NewsAPI | 100 req/day | Yes |
+| OpenWeatherMap | 1,000 req/day | Yes |
+| CoinGecko | Unlimited | No |
+| GitHub | 60 req/hr (5K with token) | Optional |
 
 ---
 
-## 🚀 You're All Set!
+## Data Persistence
 
-Your dashboard is now ready to use with:
-- ✅ Live weather with geolocation
-- ✅ Real-time news from multiple sources
-- ✅ Cryptocurrency price tracking
-- ✅ GitHub repository explorer
+All user data is stored in **localStorage** — no database or authentication required.
 
-**Enjoy your API Hub! 🎉**
+| Page | localStorage Keys |
+|------|-------------------|
+| Weather | `weather_saved_cities`, `weather_default_city` |
+| Crypto | `crypto_portfolio`, `crypto_alerts` |
+| GitHub | `github_favorites`, `github_search_count` |
 
-Need help? Check the [GitHub Issues](https://github.com/b5119/flask-api-dashboard/issues)
+---
+
+## Health Check
+```bash
+curl http://localhost:5000/health
+```
+```json
+{
+  "status": "ok",
+  "apis": { "news": "ok", "weather": "ok", "crypto": "ok", "github": "ok" }
+}
+```
+
+---
+
+## Roadmap
+
+### Completed
+- Dark Glass Terminal design system across all 5 pages
+- Live Intelligence Dashboard with sparklines
+- Global + local news with GPS detection
+- Weather with saved cities and 5-day forecast
+- Crypto portfolio with real-time P/L
+- GitHub explorer with favorites and repo details
+- Structured logging and rate limiting
+- jQuery + Utils loaded globally via base.html
+
+### Planned
+- Browser push notifications for price alerts
+- Portfolio export to CSV
+- Dark/light theme toggle
+- WebSocket real-time price stream
+- User authentication + cloud-sync
+
+---
+
+## Author
+
+**Frank Bwalya**
+- GitHub: [b5119](https://github.com/b5119)
+- Email: bwalyafrank61@gmail.com
+
+---
+
+## Acknowledgements
+
+- [NewsAPI](https://newsapi.org) — News data
+- [OpenWeatherMap](https://openweathermap.org) — Weather data
+- [CoinGecko](https://coingecko.com) — Crypto data
+- [GitHub API](https://docs.github.com/en/rest) — Repository data
+- [Nominatim](https://nominatim.org) — Reverse geocoding
+
+---
